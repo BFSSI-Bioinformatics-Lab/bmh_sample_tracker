@@ -1,0 +1,14 @@
+{% extends "base.html" %} {% block content %} {% if latest_samples %}
+<table>
+  {% for sample in latest_samples %}
+  <tr>
+    <td>
+      <a href="/database/{{ sample.sample_id }}/">{{ sample.sample_id }}</a>
+    </td>
+    <td>{{ sample.sample_name }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No samples are available.</p>
+{% endif %} {% endblock %}

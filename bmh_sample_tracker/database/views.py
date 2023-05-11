@@ -1,12 +1,16 @@
 from django.http import HttpResponse
+from django.template import loader
+
+from .models import Sample
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the database index.")
-
-
-def list(request):
-    return HttpResponse("Hello, world. This is supposed to be a list of all the samples.")
+    latest_samples = Sample.objects.order_by("-created")[:5]
+    template = loader.get_template("database/index.html")
+    context = {
+        "latest_samples": latest_samples,
+    }
+    return HttpResponse(template.render(context, request))
 
 
 def detail(request, sample_id):
