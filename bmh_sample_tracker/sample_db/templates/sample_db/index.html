@@ -9,12 +9,25 @@
         <th>Submitting Lab</th>
       </tr>
     </thead>
+    <tfoot>
+      <tr>
+        <th>Sample ID</th>
+        <th>Sample Name</th>
+        <th>Well</th>
+        <th>Submitting Lab</th>
+      </tr>
+    </tfoot>
   </table>
 </div>
 {% endblock %} {% block inline_javascript %}
 <script type="text/javascript">
   let csrf = Cookies.get('csrftoken');
   $(document).ready(function () {
+    $('#sample-table tfoot th').each(function () {
+      var title = $(this).text();
+      $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+    });
+
     let table = $('#sample-table').DataTable({
       processing: true,
       serverSide: true,
@@ -48,6 +61,20 @@
           previous: 'Previous',
         },
         search: 'Search:',
+      },
+      initComplete: function () {
+        // Apply the search
+        this.api()
+          .columns()
+          .every(function () {
+            var that = this;
+
+            $('input', this.footer()).on('keyup change clear', function () {
+              if (that.search() !== this.value) {
+                that.search(this.value).draw();
+              }
+            });
+          });
       },
     });
   });
