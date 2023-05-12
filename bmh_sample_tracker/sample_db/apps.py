@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class DatabaseConfig(AppConfig):
+class SampleDbConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "database"
+    name = "sample_db"

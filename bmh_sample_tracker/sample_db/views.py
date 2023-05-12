@@ -9,14 +9,14 @@ from django.views.generic.detail import DetailView
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class SampleListView(TemplateView, LoginRequiredMixin):
-    template_name = "database/index.html"
+    template_name = "sample_db/index.html"
     login_url = "/accounts/login/"
     redirect_field_name = "redirect_to"
 
 
 class SampleDetailView(DetailView, LoginRequiredMixin):
     model = Sample
-    template_name = "database/sample_detail.html"
+    template_name = "sample_db/sample_detail.html"
     login_url = "/accounts/login/"
     redirect_field_name = "redirect_to"
 
