@@ -1,14 +1,57 @@
-{% extends "base.html" %} {% block content %} {% if latest_samples %}
-<table>
-  {% for sample in latest_samples %}
-  <tr>
-    <td>
-      <a href="/database/{{ sample.sample_id }}/">{{ sample.sample_id }}</a>
-    </td>
-    <td>{{ sample.sample_name }}</td>
-  </tr>
-  {% endfor %}
-</table>
-{% else %}
-<p>No samples are available.</p>
-{% endif %} {% endblock %}
+{% extends 'base.html' %} {% block extra_head %} {% endblock %} {% block content
+%}
+<div class="table-responsive">
+  <table id="sample-table" class="table table-striped table-bordered">
+    <thead class="thead-light">
+      <tr>
+        <th>Sample ID</th>
+        <th>Sample Name</th>
+        <th>Well</th>
+        <th>Submitting Lab</th>
+      </tr>
+    </thead>
+  </table>
+</div>
+{% endblock %} {% block inline_javascript %}
+<script type="text/javascript">
+  let csrf = Cookies.get('csrftoken');
+  $(document).ready(function () {
+    let table = $('#sample-table').DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: '/api/sample/?format=datatables',
+        type: 'POST',
+        headers: {
+          'X-CSRFToken': csrf,
+        },
+      },
+      columns: [
+        { data: 'sample_id' },
+        { data: 'sample_name' },
+        { data: 'well' },
+        { data: 'submitting_lab' },
+      ],
+      order: [[0, 'asc']],
+      paging: true,
+      searching: true,
+      lengthChange: true,
+      pageLength: 10,
+      language: {
+        emptyTable: 'No data available in table',
+        info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+        infoEmpty: 'Showing 0 to 0 of 0 entries',
+        lengthMenu: 'Show _MENU_ entries',
+        paginate: {
+          first: 'First',
+          last: 'Last',
+          next: 'Next',
+          previous: 'Previous',
+        },
+        search: 'Search:',
+      },
+    });
+  });
+</script>
+
+{% endblock %}

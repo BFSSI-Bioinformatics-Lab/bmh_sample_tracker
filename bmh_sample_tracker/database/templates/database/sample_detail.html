@@ -1,0 +1,23 @@
+{% extends 'base.html' %} {% block content %}
+<div class="card">
+  <div class="card-header">
+    <h1 class="card-title">{{ object.sample_name }}</h1>
+  </div>
+  <div class="card-body">
+    <dl class="row">
+      <dt class="col-sm-3">Sample ID:</dt>
+      <dd class="col-sm-9">{{ object.sample_id }}</dd>
+      <dt class="col-sm-3">Well:</dt>
+      <dd class="col-sm-9">{{ object.well }}</dd>
+      {% if object.submitting_lab %}
+      <dt class="col-sm-3">Submitting Lab:</dt>
+      <dd class="col-sm-9">{{ object.submitting_lab.lab_name }}</dd>
+      {% endif %}
+      <dt class="col-sm-3">Created at:</dt>
+      <dd class="col-sm-9">{{ object.created }}</dd>
+      <dt class="col-sm-3">Last updated:</dt>
+      <dd class="col-sm-9">{{ object.modified }}</dd>
+    </dl>
+  </div>
+</div>
+{% endblock %}

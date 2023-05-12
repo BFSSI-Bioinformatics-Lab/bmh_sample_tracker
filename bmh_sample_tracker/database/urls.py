@@ -1,8 +1,8 @@
 from django.urls import path
 
-from . import views
+from .views import SampleDetailView, SampleListView
 
 urlpatterns = [
-    path("", views.index, name="index"),
-    path("<str:sample_id>/", views.detail, name="detail"),
+    path("", SampleListView.as_view(), name="index"),
+    path("<str:sample_id>/", SampleDetailView.as_view(), name="detail"),
 ]
