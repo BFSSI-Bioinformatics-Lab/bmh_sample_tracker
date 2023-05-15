@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class SampleDbConfig(AppConfig):
+class ApiConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "bmh_sample_tracker.sample_db"
+    name = "api"
