@@ -44,6 +44,7 @@ jobs:
           - 5432:5432
         env:
           POSTGRES_PASSWORD: postgres
+          PYTEST_ADDOPTS: -vv
 
     env:
       # postgres://user:password@host:port/database
