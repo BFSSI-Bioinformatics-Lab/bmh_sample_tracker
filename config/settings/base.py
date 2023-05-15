@@ -80,6 +80,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "bmh_sample_tracker.users",
     # Your stuff: custom apps go here
+    "bmh_sample_tracker.sample_database.apps.SampleDatabaseConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
