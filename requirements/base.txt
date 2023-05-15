@@ -16,3 +16,4 @@ crispy-bootstrap5==0.7  # https://github.com/django-crispy-forms/crispy-bootstra
 django-redis==5.2.0  # https://github.com/jazzband/django-redis
 djangorestframework==3.14.0
 djangorestframework-datatables==0.7.0
+django-simple-history==3.3.0
