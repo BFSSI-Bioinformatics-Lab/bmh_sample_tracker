@@ -14,3 +14,5 @@ django-allauth==0.54.0  # https://github.com/pennersr/django-allauth
 django-crispy-forms==2.0  # https://github.com/django-crispy-forms/django-crispy-forms
 crispy-bootstrap5==0.7  # https://github.com/django-crispy-forms/crispy-bootstrap5
 django-redis==5.2.0  # https://github.com/jazzband/django-redis
+djangorestframework==3.14.0
+djangorestframework-datatables==0.7.0
