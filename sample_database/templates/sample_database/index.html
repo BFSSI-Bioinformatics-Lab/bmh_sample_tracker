@@ -5,62 +5,50 @@
       <tr>
         <th>Sample ID</th>
         <th>Sample Name</th>
-        <th>Well</th>
         <th>Submitting Lab</th>
+        <th>Project</th>
+        <th>Requested services</th>
+        <th>Sample Type</th>
       </tr>
     </thead>
     <tfoot>
       <tr>
         <th>Sample ID</th>
         <th>Sample Name</th>
-        <th>Well</th>
         <th>Submitting Lab</th>
+        <th>Project</th>
+        <th>Requested services</th>
+        <th>Sample Type</th>
       </tr>
     </tfoot>
   </table>
 </div>
 {% endblock %} {% block inline_javascript %}
 <script type="text/javascript">
-  let csrf = Cookies.get('csrftoken');
   $(document).ready(function () {
     $('#sample-table tfoot th').each(function () {
       var title = $(this).text();
       $(this).html('<input type="text" placeholder="Search ' + title + '" />');
     });
 
-    let table = $('#sample-table').DataTable({
-      processing: true,
-      serverSide: true,
+    $('#sample-table').DataTable({
       ajax: {
-        url: '/api/sample/?format=datatables',
-        type: 'POST',
-        headers: {
-          'X-CSRFToken': csrf,
-        },
+        url: '/api/sample/',
+        dataSrc: '',
       },
       columns: [
         { data: 'sample_id' },
         { data: 'sample_name' },
-        { data: 'well' },
-        { data: 'submitting_lab' },
-      ],
-      order: [[0, 'asc']],
-      paging: true,
-      searching: true,
-      lengthChange: true,
-      pageLength: 10,
-      language: {
-        emptyTable: 'No data available in table',
-        info: 'Showing _START_ to _END_ of _TOTAL_ entries',
-        infoEmpty: 'Showing 0 to 0 of 0 entries',
-        lengthMenu: 'Show _MENU_ entries',
-        paginate: {
-          first: 'First',
-          last: 'Last',
-          next: 'Next',
-          previous: 'Previous',
+        { data: 'submitting_lab.lab_name' },
+        {
+          data: 'submitter_project.project_name',
+          defaultContent: '',
         },
-        search: 'Search:',
+        { data: 'requested_services' },
+        { data: 'sample_type' },
+      ],
+      language: {
+        search: 'Search all fields:',
       },
       initComplete: function () {
         // Apply the search
@@ -79,5 +67,4 @@
     });
   });
 </script>
-
 {% endblock %}

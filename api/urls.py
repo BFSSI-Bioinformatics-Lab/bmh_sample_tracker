@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .views import SampleList
+from .views import SampleAPIView
 
 router = routers.DefaultRouter()
 
@@ -9,6 +9,6 @@ router = routers.DefaultRouter()
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path("", include(router.urls)),
-    path("sample/", SampleList.as_view(actions={"post": "list", "get": "list"})),
+    path("sample/", SampleAPIView.as_view()),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

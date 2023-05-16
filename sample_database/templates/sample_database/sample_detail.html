@@ -1,23 +1,77 @@
 {% extends 'base.html' %} {% block content %}
-<div class="card">
-  <div class="card-header">
-    <h1 class="card-title">{{ object.sample_name }}</h1>
-  </div>
-  <div class="card-body">
-    <dl class="row">
-      <dt class="col-sm-3">Sample ID:</dt>
-      <dd class="col-sm-9">{{ object.sample_id }}</dd>
-      <dt class="col-sm-3">Well:</dt>
-      <dd class="col-sm-9">{{ object.well }}</dd>
-      {% if object.submitting_lab %}
-      <dt class="col-sm-3">Submitting Lab:</dt>
-      <dd class="col-sm-9">{{ object.submitting_lab.lab_name }}</dd>
-      {% endif %}
-      <dt class="col-sm-3">Created at:</dt>
-      <dd class="col-sm-9">{{ object.created }}</dd>
-      <dt class="col-sm-3">Last updated:</dt>
-      <dd class="col-sm-9">{{ object.modified }}</dd>
-    </dl>
+<div class="container">
+  <h1>Sample Details</h1>
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">{{ object.sample_name }}</h1>
+    </div>
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-3">Sample ID</dt>
+        <dd class="col-sm-9">{{ sample.sample_id }}</dd>
+
+        {% if object.submitting_lab %}
+        <dt class="col-sm-3">Submitting Lab</dt>
+        <dd class="col-sm-9">{{ sample.submitting_lab.lab_name }}</dd>
+        {% endif %} {% if object.submitter_project %}
+        <dt class="col-sm-3">Submitter Project</dt>
+        <dd class="col-sm-9">{{ sample.submitter_project.project_name }}</dd>
+        {% endif %}
+        <hr />
+
+        <dt class="col-sm-3">Requested Services</dt>
+        <dd class="col-sm-9">{{ sample.requested_services }}</dd>
+
+        <dt class="col-sm-3">Sample Type</dt>
+        <dd class="col-sm-9">{{ sample.sample_type }}</dd>
+
+        <dt class="col-sm-3">Sample Volume</dt>
+        <dd class="col-sm-9">{{ sample.sample_volume_in_ul }} μL</dd>
+
+        <dt class="col-sm-3">Well</dt>
+        <dd class="col-sm-9">{{ sample.well }}</dd>
+        <hr />
+
+        <dt class="col-sm-3">Strain</dt>
+        <dd class="col-sm-9">{{ sample.strain }}</dd>
+
+        <dt class="col-sm-3">Isolate</dt>
+        <dd class="col-sm-9">{{ sample.isolate }}</dd>
+
+        <dt class="col-sm-3">Genus</dt>
+        <dd class="col-sm-9">{{ sample.genus }}</dd>
+
+        <dt class="col-sm-3">Species</dt>
+        <dd class="col-sm-9">{{ sample.species }}</dd>
+
+        <dt class="col-sm-3">Subspecies/Subtype/Lineage</dt>
+        <dd class="col-sm-9">{{ sample.subspecies_subtype_lineage }}</dd>
+
+        <dt class="col-sm-3">Approx. Genome Size</dt>
+        <dd class="col-sm-9">{{ sample.approx_genome_size_in_bp }} bp</dd>
+        <hr />
+
+        <dt class="col-sm-3">Culture Date</dt>
+        <dd class="col-sm-9">{{ sample.culture_date }}</dd>
+
+        <dt class="col-sm-3">Culture Conditions</dt>
+        <dd class="col-sm-9">{{ sample.culture_conditions }}</dd>
+
+        <dt class="col-sm-3">DNA Extraction Date</dt>
+        <dd class="col-sm-9">{{ sample.dna_extraction_date }}</dd>
+
+        <dt class="col-sm-3">DNA Extraction Method</dt>
+        <dd class="col-sm-9">{{ sample.dna_extraction_method }}</dd>
+
+        <dt class="col-sm-3">Qubit Concentration</dt>
+        <dd class="col-sm-9">
+          {{ sample.qubit_concentration_in_ng_ul }} ng/μL
+        </dd>
+
+        <dt class="col-sm-3">Comments</dt>
+        <dd class="col-sm-9">{{ sample.comments }}</dd>
+      </dl>
+    </div>
   </div>
 </div>
 {% endblock %}
