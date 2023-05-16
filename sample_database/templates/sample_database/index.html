@@ -37,7 +37,16 @@
         dataSrc: '',
       },
       columns: [
-        { data: 'sample_id' },
+        {
+          data: 'sample_id',
+          render: function (data, type, row, meta) {
+            if (type === 'display') {
+              var link = '/sample_database/' + data;
+              return '<a href="' + link + '">' + data + '</a>';
+            }
+            return data;
+          },
+        },
         { data: 'sample_name' },
         { data: 'submitting_lab.lab_name' },
         {
