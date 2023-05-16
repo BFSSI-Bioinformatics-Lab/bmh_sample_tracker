@@ -25,99 +25,43 @@
 </div>
 {% endblock %} {% block inline_javascript %}
 <script type="text/javascript">
-  let csrf = Cookies.get('csrftoken');
   $(document).ready(function () {
     $('#sample-table tfoot th').each(function () {
       var title = $(this).text();
       $(this).html('<input type="text" placeholder="Search ' + title + '" />');
     });
 
-    // Make an Ajax request to fetch the foreign data
-    $.ajax({
-      url: '/api/get_lab_data/',
-      type: 'GET',
-      headers: {
-        'X-CSRFToken': csrf,
+    $('#sample-table').DataTable({
+      ajax: {
+        url: '/api/sample_new/',
+        dataSrc: '',
       },
-      success: function (response) {
-        // Handle the retrieved foreign data
-        let lab_data = response;
+      columns: [
+        { data: 'sample_id' },
+        { data: 'sample_name' },
+        { data: 'submitting_lab.lab_name' },
+        { data: 'submitter_project' },
+        { data: 'requested_services' },
+        { data: 'sample_type' },
+      ],
+      language: {
+        search: 'Search all fields:',
+      },
+      initComplete: function () {
+        // Apply the search
+        this.api()
+          .columns()
+          .every(function () {
+            var that = this;
 
-        let table = $('#sample-table').DataTable({
-          processing: true,
-          serverSide: true,
-          ajax: {
-            url: '/api/sample/?format=datatables',
-            type: 'POST',
-            headers: {
-              'X-CSRFToken': csrf,
-            },
-          },
-          columns: [
-            { data: 'sample_id' },
-            { data: 'sample_name' },
-            { data: 'submitting_lab' },
-            { data: 'submitter_project' },
-            { data: 'requested_services' },
-            { data: 'sample_type' },
-          ],
-          order: [[0, 'asc']],
-          paging: true,
-          searching: true,
-          lengthChange: true,
-          pageLength: 10,
-          language: {
-            emptyTable: 'No data available in table',
-            info: 'Showing _START_ to _END_ of _TOTAL_ entries',
-            infoEmpty: 'Showing 0 to 0 of 0 entries',
-            lengthMenu: 'Show _MENU_ entries',
-            paginate: {
-              first: 'First',
-              last: 'Last',
-              next: 'Next',
-              previous: 'Previous',
-            },
-            search: 'Search:',
-          },
-          initComplete: function () {
-            // Apply the search
-            this.api()
-              .columns()
-              .every(function () {
-                var that = this;
-
-                $('input', this.footer()).on('keyup change clear', function () {
-                  if (that.search() !== this.value) {
-                    that.search(this.value).draw();
-                  }
-                });
-              });
-          },
-        });
-
-        table.on('preDraw', function () {
-          // Populate the foreign data in the DataTable
-          table.rows().every(function () {
-            var rowData = this.data();
-            console.log(rowData);
-            var lab_match = lab_data.find(function (item) {
-              return item.id === rowData.submitting_lab;
+            $('input', this.footer()).on('keyup change clear', function () {
+              if (that.search() !== this.value) {
+                that.search(this.value).draw();
+              }
             });
-            if (lab_match) {
-              rowData.submitting_lab = lab_match.lab_name;
-            }
-            this.invalidate(); // Mark the row for redrawing
           });
-        });
-
-        table.draw(); // Redraw the table with the updated data
-      },
-      error: function (xhr, status, error) {
-        // Handle the error
-        console.log(error);
       },
     });
   });
 </script>
-
 {% endblock %}
