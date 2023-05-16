@@ -113,3 +113,49 @@ class Sample(TimeStampedModel):
     class Meta:
         verbose_name = "Sample"
         verbose_name_plural = "Samples"
+
+
+class Workflow(TimeStampedModel):
+    """
+    Model to store workflows and their relevant data
+    """
+
+    name = models.CharField(max_length=SM_CHAR, unique=True)  # e.g. "DNA extraction"
+    description = models.TextField(null=True, blank=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.name}"
+
+    class Meta:
+        verbose_name = "Workflow"
+        verbose_name_plural = "Workflows"
+
+
+class WorkflowBatch(TimeStampedModel):
+    """
+    Model to represent individual workflow batches that a user has assigned samples to
+    """
+
+    workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=SM_CHAR,
+        choices=(
+            ("IN_PROGRESS", "In Progress"),
+            ("COMPLETE", "Complete"),
+            ("FAIL", "Fail"),
+        ),
+        null=True,
+        blank=True,
+    )
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.id}: {self.workflow}"
+
+    class Meta:
+        verbose_name = "Workflow Batch"
+        verbose_name_plural = "Workflow Batches"
