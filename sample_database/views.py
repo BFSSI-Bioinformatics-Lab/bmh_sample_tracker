@@ -10,7 +10,7 @@ from api.models import Sample
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class SampleListView(TemplateView, LoginRequiredMixin):
-    template_name = "sample_database/index.html"
+    template_name = "sample_database/index_2.html"
     login_url = "/accounts/login/"
     redirect_field_name = "redirect_to"
 
