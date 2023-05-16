@@ -32,7 +32,7 @@ def workflow_assignment_form_view(request):
     if request.method == "POST":
         form = WorkflowAssignmentForm(request.POST)
         if form.is_valid():
-            # Process the form data and save it if needed
+            form.save()
             return render(request, "sample_database/success.html")
     else:
         form = WorkflowAssignmentForm()

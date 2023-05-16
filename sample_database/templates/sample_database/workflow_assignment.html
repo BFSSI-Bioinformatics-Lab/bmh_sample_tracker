@@ -3,6 +3,8 @@
 <body>
   <div class="container">
     <h1>Form</h1>
+
+    <div>This form makes a new link between a sample and a workflow.</div>
     <form method="post">
       {% csrf_token %} {% for field in form %}
       <div class="form-group">
