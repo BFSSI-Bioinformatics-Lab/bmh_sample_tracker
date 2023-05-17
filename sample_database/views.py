@@ -31,7 +31,7 @@ class SampleDetailView(DetailView, LoginRequiredMixin):
 
 
 @login_required
-@permission_required("your_app.change_workflowbatch", raise_exception=True)
+@permission_required("users.change_workflowbatch", raise_exception=True)
 def workflow_assignment_form_view(request):
     if request.method == "POST":
         form = WorkflowAssignmentForm(request.POST)
