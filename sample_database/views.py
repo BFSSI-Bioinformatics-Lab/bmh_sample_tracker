@@ -27,5 +27,13 @@ class SampleDetailView(DetailView, LoginRequiredMixin):
         return get_object_or_404(Sample, sample_id=sample_id)
 
 
+class CreateBatchView(TemplateView, LoginRequiredMixin):
+    template_name = "sample_database/batch_create.html"
+    login_url = "/accounts/login/"
+    redirect_field_name = "redirect_to"
+
+    extra_context = {"samples": Sample.objects.all()}
+
+
 def permission_denied_view(request):
     raise PermissionDenied()
