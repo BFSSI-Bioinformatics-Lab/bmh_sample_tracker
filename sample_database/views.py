@@ -1,15 +1,12 @@
-from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 
 from api.models import Sample
-
-from .forms import WorkflowAssignmentForm
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -28,20 +25,6 @@ class SampleDetailView(DetailView, LoginRequiredMixin):
     def get_object(self):
         sample_id = self.kwargs["sample_id"]
         return get_object_or_404(Sample, sample_id=sample_id)
-
-
-@login_required
-@permission_required("users.change_workflowbatch", raise_exception=True)
-def workflow_assignment_form_view(request):
-    if request.method == "POST":
-        form = WorkflowAssignmentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return render(request, "sample_database/success.html")
-    else:
-        form = WorkflowAssignmentForm()
-
-    return render(request, "sample_database/workflow_assignment.html", {"form": form})
 
 
 def permission_denied_view(request):

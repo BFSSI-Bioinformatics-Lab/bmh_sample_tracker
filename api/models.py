@@ -207,30 +207,3 @@ class Result(TimeStampedModel):
     class Meta:
         verbose_name = "Result"
         verbose_name_plural = "Results"
-
-
-class WorkflowBatch(TimeStampedModel):
-    """
-    TODO delete this
-    """
-
-    workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE)
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
-    status = models.CharField(
-        max_length=SM_CHAR,
-        choices=(
-            ("IN_PROGRESS", "In Progress"),
-            ("COMPLETE", "Complete"),
-            ("FAIL", "Fail"),
-        ),
-        null=True,
-        blank=True,
-    )
-    history = HistoricalRecords()
-
-    def __str__(self):
-        return f"{self.id}: {self.workflow}"
-
-    class Meta:
-        verbose_name = "Workflow Batch"
-        verbose_name_plural = "Workflow Batches"
