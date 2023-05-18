@@ -115,25 +115,6 @@ class Sample(TimeStampedModel):
         verbose_name_plural = "Samples"
 
 
-class Aliquot(TimeStampedModel):
-    """
-    Model to store aliquots taken from a sample.
-    """
-
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
-
-    aliquot_volume_in_ul = models.FloatField(null=True, blank=True)
-
-    history = HistoricalRecords()
-
-    def __str__(self):
-        return f"{self.aliquot_volume_in_ul} uL aliquot of {self.sample.sample_id}"
-
-    class Meta:
-        verbose_name = "Aliquot"
-        verbose_name_plural = "Aliquots"
-
-
 class Batch(TimeStampedModel):
     """
     Model to store a batch of aliquots that are processed together
@@ -149,6 +130,26 @@ class Batch(TimeStampedModel):
     class Meta:
         verbose_name = "Batch"
         verbose_name_plural = "Batches"
+
+
+class Aliquot(TimeStampedModel):
+    """
+    Model to store aliquots taken from a sample.
+    """
+
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+
+    aliquot_volume_in_ul = models.FloatField(null=True, blank=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.aliquot_volume_in_ul} uL aliquot of {self.sample.sample_id}"
+
+    class Meta:
+        verbose_name = "Aliquot"
+        verbose_name_plural = "Aliquots"
 
 
 class Workflow(TimeStampedModel):
