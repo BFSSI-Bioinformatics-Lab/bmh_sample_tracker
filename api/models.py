@@ -120,12 +120,12 @@ class Batch(TimeStampedModel):
     Model to store a batch of aliquots that are processed together
     """
 
-    name = models.CharField(max_length=100)
+    batch_name = models.CharField(max_length=100)
 
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.id}: {self.name}"
+        return f"{self.id}: {self.batch_name}"
 
     class Meta:
         verbose_name = "Batch"
@@ -157,13 +157,13 @@ class Workflow(TimeStampedModel):
     Model to store workflows and their relevant data
     """
 
-    name = models.CharField(max_length=SM_CHAR, unique=True)  # e.g. "DNA extraction"
+    workflow_name = models.CharField(max_length=SM_CHAR, unique=True)  # e.g. "DNA extraction"
     description = models.TextField(null=True, blank=True)
 
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.workflow_name}"
 
     class Meta:
         verbose_name = "Workflow"
