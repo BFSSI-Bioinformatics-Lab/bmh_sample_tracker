@@ -113,3 +113,98 @@ class Sample(TimeStampedModel):
     class Meta:
         verbose_name = "Sample"
         verbose_name_plural = "Samples"
+
+
+class Batch(TimeStampedModel):
+    """
+    Model to store a batch of aliquots that are processed together
+    """
+
+    batch_name = models.CharField(max_length=100)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.id}: {self.batch_name}"
+
+    class Meta:
+        verbose_name = "Batch"
+        verbose_name_plural = "Batches"
+
+
+class Aliquot(TimeStampedModel):
+    """
+    Model to store aliquots taken from a sample.
+    """
+
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+
+    aliquot_volume_in_ul = models.FloatField(null=True, blank=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.aliquot_volume_in_ul} uL aliquot of {self.sample.sample_id}"
+
+    class Meta:
+        verbose_name = "Aliquot"
+        verbose_name_plural = "Aliquots"
+
+
+class Workflow(TimeStampedModel):
+    """
+    Model to store workflows and their relevant data
+    """
+
+    workflow_name = models.CharField(max_length=SM_CHAR, unique=True)  # e.g. "DNA extraction"
+    description = models.TextField(null=True, blank=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.workflow_name}"
+
+    class Meta:
+        verbose_name = "Workflow"
+        verbose_name_plural = "Workflows"
+
+
+class AliquotWorkflowExecution(TimeStampedModel):
+    aliquot = models.ForeignKey(Aliquot, on_delete=models.CASCADE)
+    workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+
+    status = models.CharField(
+        max_length=SM_CHAR,
+        choices=(
+            ("IN_PROGRESS", "In Progress"),
+            ("COMPLETE", "Complete"),
+            ("FAIL", "Fail"),
+        ),
+        null=True,
+        blank=True,
+    )
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.id}: {self.workflow}"
+
+    class Meta:
+        verbose_name = "Workflow Execution"
+        verbose_name_plural = "Workflow Executions"
+
+
+class Result(TimeStampedModel):
+    aliquot_workflow_execution = models.OneToOneField(AliquotWorkflowExecution, on_delete=models.CASCADE)
+    # Other fields for storing the result
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.id}: {self.aliquot_workflow_execution}: {self.aliquot_workflow_execution.workflow}"
+
+    class Meta:
+        verbose_name = "Result"
+        verbose_name_plural = "Results"

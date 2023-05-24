@@ -22,3 +22,8 @@ class SampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sample
         fields = "__all__"
+
+
+class BatchCreationSerializer(serializers.Serializer):
+    samples = serializers.ListField(child=serializers.IntegerField())
+    volumes = serializers.ListField(child=serializers.FloatField())

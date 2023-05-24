@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -24,3 +25,15 @@ class SampleDetailView(DetailView, LoginRequiredMixin):
     def get_object(self):
         sample_id = self.kwargs["sample_id"]
         return get_object_or_404(Sample, sample_id=sample_id)
+
+
+class CreateBatchView(TemplateView, LoginRequiredMixin):
+    template_name = "sample_database/batch_create.html"
+    login_url = "/accounts/login/"
+    redirect_field_name = "redirect_to"
+
+    extra_context = {"samples": Sample.objects.all()}
+
+
+def permission_denied_view(request):
+    raise PermissionDenied()
