@@ -3,7 +3,7 @@
 
 import pandas as pd
 
-from api.models import Lab, Project, Workflow
+from api.models import Lab, Project
 
 excelfile = "lims_test_sample_sheet.xlsx"
 
@@ -26,14 +26,4 @@ for _, row in project_df.iterrows():
     project_object, created = Project.objects.get_or_create(
         project_name=project_name,
         supporting_lab=supporting_lab,
-    )
-
-# workflows
-wf_df = pd.read_excel(excelfile, sheet_name="requested_services_list")
-
-wf_list = wf_df["requested_services"]
-
-for wf in wf_list:
-    wf_object, created = Workflow.objects.get_or_create(
-        workflow_name=wf,
     )

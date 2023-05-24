@@ -1,16 +1,14 @@
 {% extends 'base.html' %} {% block content %}
 <div class="container">
+  <h1>Sample Details</h1>
   <div class="card">
     <div class="card-header">
-      <h2 class="card-title">Sample details</h2>
+      <h1 class="card-title">{{ object.sample_name }}</h1>
     </div>
     <div class="card-body">
       <dl class="row">
         <dt class="col-sm-3">Sample ID</dt>
         <dd class="col-sm-9">{{ sample.sample_id }}</dd>
-
-        <dt class="col-sm-3">Sample Name</dt>
-        <dd class="col-sm-9">{{ sample.sample_name }}</dd>
 
         {% if object.submitting_lab %}
         <dt class="col-sm-3">Submitting Lab</dt>
@@ -73,35 +71,6 @@
         <dt class="col-sm-3">Comments</dt>
         <dd class="col-sm-9">{{ sample.comments }}</dd>
       </dl>
-    </div>
-    <div class="card-footer">
-      <p>Last modified: {{ sample.modified }}</p>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <h2 class="card-title">Workflow history</h2>
-    </div>
-    <div class="card-body">
-      <dl class="row">
-        <dt>DNA extraction</dt>
-        <dd>
-          May 11, 2023, 2:09 p.m.
-          <span class="badge bg-danger">Fail</span>
-        </dd>
-        <dt>DNA extraction</dt>
-        <dd>
-          May 11, 2023, 2:09 p.m. <span class="badge bg-success">Complete</span>
-        </dd>
-        <dt>Sequencing</dt>
-        <dd>
-          May 11, 2023, 2:09 p.m. <span class="badge bg-info">In progress</span>
-        </dd>
-      </dl>
-      <a href="/sample_database/workflow_assignment/" class="btn btn-primary"
-        >Update status</a
-      >
     </div>
   </div>
 </div>
