@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         file_path = options["file_path"]
-        df = pd.read_excel(file_path, sheet_name="SSS-Template") 
+        df = pd.read_excel(file_path, sheet_name="SSS-Template")
 
         num_submitted = 0
         for _, row in df.iterrows():
@@ -64,12 +64,15 @@ class Command(BaseCommand):
                     float(row.get("sample_volume_in_ul")) if pd.notnull(row.get("sample_volume_in_ul")) else None
                 )
                 approx_genome_size_in_bp = (
-                    float(row.get("approx_genome_size_in_bp")) if pd.notnull(row.get("approx_genome_size_in_bp")) else None
+                    float(row.get("approx_genome_size_in_bp"))
+                    if pd.notnull(row.get("approx_genome_size_in_bp"))
+                    else None
                 )
                 qubit_concentration_in_ng_ul = (
-                    float(row.get("qubit_concentration_in_ng_ul")) if pd.notnull(row.get("qubit_concentration_in_ng_ul")) else None
+                    float(row.get("qubit_concentration_in_ng_ul"))
+                    if pd.notnull(row.get("qubit_concentration_in_ng_ul"))
+                    else None
                 )
-
 
                 sample = Sample(
                     sample_name=sample_name,
