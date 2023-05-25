@@ -84,11 +84,9 @@
         <ul>
           {% for aliquot in batch.aliquot_set.all %}
           <li>
-            {{ aliquot.aliquot_volume_in_ul }} uL aliquot of {{
-            aliquot.sample.sample_id }}
+            {{ aliquot.aliquot_volume_in_ul }} uL aliquot of {{ aliquot.sample.sample_id }}
             <ul>
-              {% for execution in executions %} {% if execution.aliquot ==
-              aliquot %}
+              {% for execution in executions %} {% if execution.aliquot == aliquot %}
               <li>
                 {{ execution.modified }} {{ execution.workflow }}
                 <span

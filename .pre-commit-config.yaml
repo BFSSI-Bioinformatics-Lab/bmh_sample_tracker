@@ -22,7 +22,7 @@ repos:
     hooks:
       - id: prettier
         args: ['--tab-width', '2', '--single-quote']
-        exclude: 'bmh_sample_tracker/templates/'
+        exclude: 'bmh_sample_tracker/templates/|sample_database/templates/|api/templates/'
 
   - repo: https://github.com/adamchainz/django-upgrade
     rev: '1.13.0'
