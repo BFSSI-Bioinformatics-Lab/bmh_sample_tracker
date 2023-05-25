@@ -198,7 +198,6 @@ class WorkflowExecution(TimeStampedModel):
 
     aliquot = models.ForeignKey(Aliquot, on_delete=models.CASCADE)
     workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE)
-    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
 
     status = models.CharField(
         max_length=SM_CHAR,
