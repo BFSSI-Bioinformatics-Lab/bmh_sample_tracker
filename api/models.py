@@ -121,12 +121,12 @@ class Sample(TimeStampedModel):
             self.sample_type = choices_map.get(self.sample_type.lower(), self.sample_type)
         super().save(*args, **kwargs)
 
-    def full_clean(self, exclude=None, validate_unique=True):
+    def full_clean(self, exclude=None, validate_unique=True, validate_constraints=True):
         # Convert the human-readable name to the appropriate database value before validation
         if self.sample_type:
             choices_map = {choice[1].lower(): choice[0] for choice in self.SAMPLE_TYPE_CHOICES}
             self.sample_type = choices_map.get(self.sample_type.lower(), self.sample_type)
-        super().full_clean(exclude=exclude, validate_unique=validate_unique)
+        super().full_clean(exclude=exclude, validate_unique=validate_unique, validate_constraints=validate_constraints)
 
     def __str__(self):
         return f"{self.sample_id}: {self.sample_name}"
@@ -134,3 +134,87 @@ class Sample(TimeStampedModel):
     class Meta:
         verbose_name = "Sample"
         verbose_name_plural = "Samples"
+
+
+class Batch(TimeStampedModel):
+    """
+    Model to store a batch of aliquots that are processed together
+    """
+
+    batch_name = models.CharField(max_length=100)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.id}: {self.batch_name}"
+
+    class Meta:
+        verbose_name = "Batch"
+        verbose_name_plural = "Batches"
+
+
+class Aliquot(TimeStampedModel):
+    """
+    Model to store aliquots taken from a sample.
+    """
+
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+
+    aliquot_volume_in_ul = models.FloatField(null=True, blank=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.aliquot_volume_in_ul} uL aliquot of {self.sample.sample_id}"
+
+    class Meta:
+        verbose_name = "Aliquot"
+        verbose_name_plural = "Aliquots"
+
+
+class Workflow(TimeStampedModel):
+    """
+    Model to store workflows and their relevant data
+    """
+
+    workflow_name = models.CharField(max_length=SM_CHAR, unique=True)  # e.g. "DNA extraction"
+    description = models.TextField(null=True, blank=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.workflow_name}"
+
+    class Meta:
+        verbose_name = "Workflow"
+        verbose_name_plural = "Workflows"
+
+
+class WorkflowExecution(TimeStampedModel):
+    """
+    Model to store the execution of a workflow on a batch of aliquots and its status
+    """
+
+    aliquot = models.ForeignKey(Aliquot, on_delete=models.CASCADE)
+    workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE)
+
+    status = models.CharField(
+        max_length=SM_CHAR,
+        choices=(
+            ("IN_PROGRESS", "In Progress"),
+            ("COMPLETE", "Complete"),
+            ("FAIL", "Fail"),
+        ),
+        null=True,
+        blank=True,
+    )
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.id}: {self.workflow}"
+
+    class Meta:
+        verbose_name = "Workflow Execution"
+        verbose_name_plural = "Workflow Executions"
