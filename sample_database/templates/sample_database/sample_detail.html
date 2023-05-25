@@ -73,23 +73,38 @@
       </dl>
     </div>
   </div>
-  <h2>Batches</h2>
-  <ul>
-    {% for batch in batches %}
-    <li>{{ batch.batch_name }} - Created on {{ batch.created }}</li>
-    <ul>
-      {% for aliquot in batch.aliquot_set.all %}
-      <li>
-        {{ aliquot.aliquot_volume_in_ul }} uL aliquot of {{
-        aliquot.sample.sample_id }}
-      </li>
-      {% empty %}
-      <li>No aliquots found for this batch.</li>
-      {% endfor %}
-    </ul>
-    {% empty %}
-    <li>No batches found.</li>
-    {% endfor %}
-  </ul>
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">Associated batches and workflow runs</h1>
+    </div>
+    <div class="card-body">
+      <ul>
+        {% for batch in batches %}
+        <li>{{ batch.batch_name }} - Created on {{ batch.created }}</li>
+        <ul>
+          {% for aliquot in batch.aliquot_set.all %}
+          <li>
+            {{ aliquot.aliquot_volume_in_ul }} uL aliquot of {{
+            aliquot.sample.sample_id }}
+            <ul>
+              {% for execution in executions %} {% if execution.aliquot ==
+              aliquot %}
+              <li>
+                {{ execution.modified }} {{ execution.workflow }}
+                <span
+                  class="badge {% if execution.status == 'FAIL' %}bg-danger{% elif execution.status == 'COMPLETE' %}bg-success{% elif execution.status == 'IN_PROGRESS' %}bg-warning text-dark{% endif %}"
+                >
+                  {{ execution.get_status_display }}
+                </span>
+              </li>
+              {% endif %} {% endfor %}
+            </ul>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endblock %}
 </div>
-{% endblock %}

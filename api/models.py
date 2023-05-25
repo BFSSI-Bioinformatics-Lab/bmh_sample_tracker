@@ -193,7 +193,7 @@ class Workflow(TimeStampedModel):
 
 class WorkflowExecution(TimeStampedModel):
     """
-    Model to store the execution on a batch of aliquots
+    Model to store the execution of a workflow on a batch of aliquots and its status
     """
 
     aliquot = models.ForeignKey(Aliquot, on_delete=models.CASCADE)

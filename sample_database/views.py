@@ -5,7 +5,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 
-from api.models import Aliquot, Batch, Sample
+from api.models import Aliquot, Batch, Sample, WorkflowExecution
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -30,6 +30,8 @@ class SampleDetailView(DetailView, LoginRequiredMixin):
         sample = self.object
         aliquots = Aliquot.objects.filter(sample=sample)
         batches = Batch.objects.filter(aliquot__in=aliquots)
+        executions = WorkflowExecution.objects.filter(aliquot__in=aliquots)
         context["aliquots"] = aliquots
         context["batches"] = batches
+        context["executions"] = executions
         return context
