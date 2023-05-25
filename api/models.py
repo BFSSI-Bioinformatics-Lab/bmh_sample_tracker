@@ -189,3 +189,33 @@ class Workflow(TimeStampedModel):
     class Meta:
         verbose_name = "Workflow"
         verbose_name_plural = "Workflows"
+
+
+class WorkflowExecution(TimeStampedModel):
+    """
+    Model to store the execution on a batch of aliquots
+    """
+
+    aliquot = models.ForeignKey(Aliquot, on_delete=models.CASCADE)
+    workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+
+    status = models.CharField(
+        max_length=SM_CHAR,
+        choices=(
+            ("IN_PROGRESS", "In Progress"),
+            ("COMPLETE", "Complete"),
+            ("FAIL", "Fail"),
+        ),
+        null=True,
+        blank=True,
+    )
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.id}: {self.workflow}"
+
+    class Meta:
+        verbose_name = "Workflow Execution"
+        verbose_name_plural = "Workflow Executions"
