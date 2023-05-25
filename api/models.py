@@ -171,3 +171,21 @@ class Aliquot(TimeStampedModel):
     class Meta:
         verbose_name = "Aliquot"
         verbose_name_plural = "Aliquots"
+
+
+class Workflow(TimeStampedModel):
+    """
+    Model to store workflows and their relevant data
+    """
+
+    workflow_name = models.CharField(max_length=SM_CHAR, unique=True)  # e.g. "DNA extraction"
+    description = models.TextField(null=True, blank=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.workflow_name}"
+
+    class Meta:
+        verbose_name = "Workflow"
+        verbose_name_plural = "Workflows"
