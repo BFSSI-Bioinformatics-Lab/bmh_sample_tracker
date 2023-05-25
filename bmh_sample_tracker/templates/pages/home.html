@@ -1,1 +1,32 @@
 {% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-5 mb-lg-0">
+                        <img src="{% static 'images/samples.svg' %}" alt="Sample Database" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">Sample Database</h5>
+                            <p class="card-text">Browse submitted samples.</p>
+                            <a href="{% url 'index' %}" class="btn btn-primary">Go</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card mb-5 mb-lg-0">
+                        <img src="{% static 'images/logo.svg' %}" alt="Admin" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">Admin</h5>
+                            <p class="card-text">Enter the admin view.</p>
+                            <a href="{% url 'admin:index' %}" class="btn btn-primary">Go</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
