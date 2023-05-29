@@ -2,6 +2,7 @@
 # It could be used to set up the production DB but would need additional fields to be populated
 
 import pandas as pd
+from django.contrib.auth.models import Group
 
 from api.models import Lab, Project, Workflow
 
@@ -15,6 +16,10 @@ for lab in lab_list:
     lab_object, created = Lab.objects.get_or_create(
         lab_name=lab,
     )
+    # Create a group assoicated with that lab
+    group = Group(name=lab)
+    group.save()
+
 
 # projects
 project_df = pd.read_excel(excelfile, sheet_name="ProjectID_List")

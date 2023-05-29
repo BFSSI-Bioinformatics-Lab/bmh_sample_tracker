@@ -9,17 +9,15 @@ from api.models import Aliquot, Batch, Sample, WorkflowExecution
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
-class SampleListView(TemplateView, LoginRequiredMixin):
+class SampleListView(LoginRequiredMixin, TemplateView):
     template_name = "sample_database/index.html"
     login_url = "/accounts/login/"
-    redirect_field_name = "redirect_to"
 
 
-class SampleDetailView(DetailView, LoginRequiredMixin):
+class SampleDetailView(LoginRequiredMixin, DetailView):
     model = Sample
     template_name = "sample_database/sample_detail.html"
     login_url = "/accounts/login/"
-    redirect_field_name = "redirect_to"
 
     def get_object(self):
         sample_id = self.kwargs["sample_id"]
