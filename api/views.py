@@ -6,19 +6,9 @@ from .models import Sample
 from .serializers import SampleSerializer
 
 
-class SampleAPIView(APIView, LoginRequiredMixin):
+class SampleAPIView(LoginRequiredMixin, APIView):
     def get(self, request):
-        samples = Sample.objects.all()
+        user_labs = request.user.groups.all().values_list("id", flat=True)  # Retrieve user's lab group names
+        samples = Sample.objects.filter(submitting_lab__in=user_labs)
         serializer = SampleSerializer(samples, many=True)
         return Response(serializer.data)
-
-
-# class SampleAPIView(APIView, LoginRequiredMixin):
-#     def get(self, request):
-#         print("##############################")
-#         print(request.user.groups)
-#         print("##############################")
-#         user_labs = request.user.groups.values_list('name', flat=True)  # Retrieve user's lab group names
-#         samples = Sample.objects.filter(lab__name__in=user_labs)
-#         serializer = SampleSerializer(samples, many=True)
-#         return Response(serializer.data)
