@@ -71,8 +71,23 @@
         },
         {
           data: 'latest_workflow_execution.status',
+          render: function (data, type, row, meta) {
+            if (type === 'display') {
+              var cssClass = '';
+              if (data === 'FAIL') {
+                cssClass = 'bg-danger';
+              } else if (data === 'COMPLETE') {
+                cssClass = 'bg-success';
+              } else if (data === 'IN_PROGRESS') {
+                cssClass = 'bg-warning text-dark';
+              }
+              return '<span class="badge ' + cssClass + '">' + data + '</span>';
+            }
+            return data;
+          },
           defaultContent: '',
         },
+
       ],
       language: {
         search: 'Search all fields:',
