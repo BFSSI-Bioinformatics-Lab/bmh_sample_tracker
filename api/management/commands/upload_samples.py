@@ -15,9 +15,12 @@ class Command(BaseCommand):
         df = pd.read_excel(file_path, sheet_name="SSS-Template")
         result = upload_samples(df)
 
-        # Retrieve the uploaded_count, skipped_count, and messages
-        # uploaded_count = result['uploaded_count']
-        # skipped_count = result['skipped_count']
+        uploaded_count = result["uploaded_count"]
+        skipped_count = result["skipped_count"]
         messages = result["messages"]
+
+        self.stdout.write(f"Uploaded {uploaded_count} samples!")
+        self.stdout.write(f"Skipped {skipped_count} samples due to errors:")
+
         for m in messages:
             self.stdout.write(m)
