@@ -10,6 +10,13 @@ LG_CHAR = 1500
 MD_CHAR = 500
 SM_CHAR = 50
 
+SAMPLE_TYPE_CHOICES = [
+    ("CELLS", "Cells (in DNA/RNA shield)"),
+    ("DNA", "DNA"),
+    ("AMPLICON", "Amplicon"),
+    ("OTHER", "Other"),
+]
+
 
 def generate_sample_id() -> str:
     """
@@ -82,13 +89,6 @@ class Sample(TimeStampedModel):
     well = models.CharField(max_length=SM_CHAR, blank=True, null=True)
     submitting_lab = models.ForeignKey(Lab, on_delete=models.CASCADE, null=True, blank=True)
 
-    SAMPLE_TYPE_CHOICES = [
-        ("CELLS", "Cells (in DNA/RNA shield)"),
-        ("DNA", "DNA"),
-        ("AMPLICON", "Amplicon"),
-        ("OTHER", "Other"),
-    ]
-
     sample_type = models.CharField(
         max_length=SM_CHAR,
         choices=SAMPLE_TYPE_CHOICES,
@@ -117,14 +117,14 @@ class Sample(TimeStampedModel):
     def save(self, *args, **kwargs):
         # Convert the human-readable name to the appropriate database value before saving
         if self.sample_type:
-            choices_map = {choice[1].lower(): choice[0] for choice in self.SAMPLE_TYPE_CHOICES}
+            choices_map = {choice[1].lower(): choice[0] for choice in SAMPLE_TYPE_CHOICES}
             self.sample_type = choices_map.get(self.sample_type.lower(), self.sample_type)
         super().save(*args, **kwargs)
 
     def full_clean(self, exclude=None, validate_unique=True, validate_constraints=True):
         # Convert the human-readable name to the appropriate database value before validation
         if self.sample_type:
-            choices_map = {choice[1].lower(): choice[0] for choice in self.SAMPLE_TYPE_CHOICES}
+            choices_map = {choice[1].lower(): choice[0] for choice in SAMPLE_TYPE_CHOICES}
             self.sample_type = choices_map.get(self.sample_type.lower(), self.sample_type)
         super().full_clean(exclude=exclude, validate_unique=validate_unique, validate_constraints=validate_constraints)
 
