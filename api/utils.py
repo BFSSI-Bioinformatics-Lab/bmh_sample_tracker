@@ -45,7 +45,7 @@ def validated_sample(row):
     try:
         validate_project_lab(row)
         # Replace empty strings with None
-        row = row.where(pd.notnull(row), None)
+        row = {k: v if v is not None else None for k, v in row.items()}
 
         # Parse date fields only if they are not empty
         culture_date = parse_date(str(row.get("culture_date"))) if pd.notnull(row.get("culture_date")) else None

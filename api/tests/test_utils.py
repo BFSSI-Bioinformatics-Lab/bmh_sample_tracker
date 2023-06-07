@@ -11,29 +11,6 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
-def test_lab():
-    lab = LabFactory()
-    yield lab
-    lab.delete()
-
-
-@pytest.fixture
-def test_project():
-    project = ProjectFactory()
-    yield project
-    project.delete()
-
-
-@pytest.fixture
-def test_sample():
-    sample = SampleFactory()
-    yield sample
-    sample.lab.delete()
-    sample.project.delete()
-    sample.delete()
-
-
-@pytest.fixture
 def test_sample_data(test_project, test_lab):
     data = {
         "sample_name": [Faker("word"), Faker("word"), Faker("word")],
