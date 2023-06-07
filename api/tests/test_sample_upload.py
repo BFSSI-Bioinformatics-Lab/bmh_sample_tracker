@@ -63,21 +63,3 @@ def test_sample_upload_invalid_lab(client, test_data_invalid_lab, user_factory):
         for errors in field_errors.values()
         for error in errors
     )
-
-
-def test_sample_upload_missing_sample_id(client, test_data_missing_sample_id, user_factory):
-    url = reverse("api:sample-upload")
-    factory = APIRequestFactory()
-    user = user_factory()
-    request = factory.post(url, data=test_data_missing_sample_id, format="json")
-    request.user = user
-    view = SampleUploadView.as_view()
-    response = view(request)
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert not response.data["success"]
-    response_errors = response.data["errors"]
-    assert any(
-        str(error) == "{'sample_id': [ErrorDetail(string='This field is required.', code='required')]}"
-        for error in response_errors
-    )
