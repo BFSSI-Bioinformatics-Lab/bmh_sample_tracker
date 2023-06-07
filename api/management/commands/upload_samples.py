@@ -1,5 +1,3 @@
-import json
-
 import pandas as pd
 from django.core.management.base import BaseCommand
 
@@ -19,18 +17,18 @@ class Command(BaseCommand):
 
         # convert lab name to pk
         lab_name_list = df["submitting_lab"].tolist()
-        lab_primary_key_list = Lab.objects.filter(lab_name__in=lab_name_list).values_list("pk", flat=True)
-        lab_mapping = dict(zip(lab_name_list, lab_primary_key_list))
-        df["submitting_lab"] = df["submitting_lab"].map(lab_mapping)
+        unique_lab_names = list(set(lab_name_list))
+        lab_queryset = Lab.objects.filter(lab_name__in=unique_lab_names)
+        lab_mapping = {lab.lab_name: lab.pk for lab in lab_queryset}
+        df["submitting_lab"] = [lab_mapping[lab_name] for lab_name in lab_name_list]
         df["submitting_lab"] = df["submitting_lab"].astype(int)
 
         # convert project name to pk
         project_name_list = df["submitter_project"].tolist()
-        project_primary_key_list = Project.objects.filter(project_name__in=project_name_list).values_list(
-            "pk", flat=True
-        )
-        project_mapping = dict(zip(project_name_list, project_primary_key_list))
-        df["submitter_project"] = df["submitter_project"].map(project_mapping)
+        unique_project_names = list(set(project_name_list))
+        project_queryset = Project.objects.filter(project_name__in=unique_project_names)
+        project_mapping = {project.project_name: project.pk for project in project_queryset}
+        df["submitter_project"] = [project_mapping[project_name] for project_name in project_name_list]
         df["submitter_project"] = df["submitter_project"].astype(int)
 
         # convert sample type to value
@@ -46,14 +44,11 @@ class Command(BaseCommand):
         data = df.to_dict(orient="records")
         serializer = SampleSerializer(data=data, many=True)
 
-        if serializer.is_valid():
-            sample_instance = serializer.save()
-            if isinstance(sample_instance, list):
-                n_samples = len(sample_instance)
+        for obj in serializer.initial_data:
+            individual_serializer = SampleSerializer(data=obj)
+            if individual_serializer.is_valid():
+                individual_instance = individual_serializer.save()
+                print(f"Sample {individual_instance.sample_name} successfully.")
             else:
-                n_samples = 1
-            print(f"{n_samples} Samples saved successfully.")
-        else:
-            errors = serializer.errors
-            error_messages = "\n".join(json.dumps(err) for err in errors)
-            print("Data validation failed. Errors:\n", error_messages)
+                errors = individual_serializer.errors
+                print(errors)
