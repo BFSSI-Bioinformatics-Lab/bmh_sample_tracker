@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution
+from .models import SAMPLE_TYPE_CHOICES, Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution, generate_sample_id
 
 
 class LabSerializer(serializers.ModelSerializer):
@@ -38,11 +38,17 @@ class AliquotSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
-    sample_id = serializers.CharField()
     sample_name = serializers.CharField()
     well = serializers.CharField(required=False, allow_null=True)
-    submitting_lab = serializers.PrimaryKeyRelatedField(queryset=Lab.objects.all(), required=False, allow_null=True)
-    sample_type = serializers.ChoiceField(choices=Sample.SAMPLE_TYPE_CHOICES, required=False, allow_null=True)
+    submitting_lab = serializers.PrimaryKeyRelatedField(
+        queryset=Lab.objects.all(),
+        required=False,
+        allow_null=True,
+        error_messages={
+            "does_not_exist": "The lab does not exist.",
+        },
+    )
+    sample_type = serializers.ChoiceField(choices=SAMPLE_TYPE_CHOICES, required=False, allow_null=True)
     sample_volume_in_ul = serializers.FloatField(min_value=0.0, required=False, allow_null=True)
     requested_services = serializers.CharField(required=False, allow_null=True)
     submitter_project = serializers.PrimaryKeyRelatedField(
@@ -73,11 +79,14 @@ class SampleSerializer(serializers.ModelSerializer):
 
         # Check if a sample with the same submitting_lab and sample_name already exists
         if Sample.objects.filter(submitting_lab=submitting_lab, sample_name=sample_name).exists():
-            raise serializers.ValidationError("Sample with the same submitting lab and sample name already exists.")
+            raise serializers.ValidationError(
+                f"Sample with the same sample name {sample_name} already exists. Skipping this sample"
+            )
 
         return attrs
 
     def create(self, validated_data):
+        validated_data["sample_id"] = generate_sample_id()
         return Sample.objects.create(**validated_data)
 
     def get_latest_workflow_execution(self, obj):
