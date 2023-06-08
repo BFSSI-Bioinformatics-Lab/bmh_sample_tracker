@@ -10,15 +10,18 @@ excelfile = "lims_test_sample_sheet.xlsx"
 
 # labs
 lab_df = pd.read_excel(excelfile, sheet_name="submitting_lab_List")
-lab_list = lab_df["submitting_lab"]
+for _, row in lab_df.iterrows():
+    lab_name = row["submitting_lab"]
+    lab_contact = row["lab_contact"]
 
-for lab in lab_list:
     lab_object, created = Lab.objects.get_or_create(
-        lab_name=lab,
+        lab_name=lab_name,
+        lab_contact=lab_contact,
     )
     # Create a group assoicated with that lab
-    group = Group(name=lab)
-    group.save()
+    group_object, created = Group.objects.get_or_create(
+        name=lab_name,
+    )
 
 
 # projects
