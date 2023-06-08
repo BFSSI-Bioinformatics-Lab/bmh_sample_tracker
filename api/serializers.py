@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import SAMPLE_TYPE_CHOICES, Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution, generate_sample_id
+from .models import Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution, generate_sample_id
 
 
 class LabSerializer(serializers.ModelSerializer):
@@ -38,8 +38,6 @@ class AliquotSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
-    sample_name = serializers.CharField()
-    well = serializers.CharField(required=False, allow_null=True)
     submitting_lab = serializers.PrimaryKeyRelatedField(
         queryset=Lab.objects.all(),
         required=False,
@@ -48,24 +46,14 @@ class SampleSerializer(serializers.ModelSerializer):
             "does_not_exist": "The lab does not exist.",
         },
     )
-    sample_type = serializers.ChoiceField(choices=SAMPLE_TYPE_CHOICES, required=False, allow_null=True)
-    sample_volume_in_ul = serializers.FloatField(min_value=0.0, required=False, allow_null=True)
-    requested_services = serializers.CharField(required=False, allow_null=True)
     submitter_project = serializers.PrimaryKeyRelatedField(
-        queryset=Project.objects.all(), required=False, allow_null=True
+        queryset=Project.objects.all(),
+        required=False,
+        allow_null=True,
+        error_messages={
+            "does_not_exist": "The project does not exist.",
+        },
     )
-    strain = serializers.CharField(required=False, allow_null=True)
-    isolate = serializers.CharField(required=False, allow_null=True)
-    genus = serializers.CharField(required=False, allow_null=True)
-    species = serializers.CharField(required=False, allow_null=True)
-    subspecies_subtype_lineage = serializers.CharField(required=False, allow_null=True)
-    approx_genome_size_in_bp = serializers.IntegerField(required=False, allow_null=True)
-    comments = serializers.CharField(required=False, allow_null=True)
-    culture_date = serializers.DateField(required=False, allow_null=True)
-    culture_conditions = serializers.CharField(required=False, allow_null=True)
-    dna_extraction_date = serializers.DateField(required=False, allow_null=True)
-    dna_extraction_method = serializers.CharField(required=False, allow_null=True)
-    qubit_concentration_in_ng_ul = serializers.FloatField(min_value=0.0, required=False, allow_null=True)
 
     latest_workflow_execution = serializers.SerializerMethodField()
 

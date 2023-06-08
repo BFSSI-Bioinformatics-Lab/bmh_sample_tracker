@@ -58,7 +58,7 @@ def test_sample_upload_invalid_lab(client, test_data_invalid_lab, user_factory):
     print(response.data["errors"])
     response_errors = response.data["errors"]
     assert any(
-        "object does not exist" in str(error)
+        "The lab does not exist." in str(error)
         for field_errors in response_errors
         for errors in field_errors.values()
         for error in errors
