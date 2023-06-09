@@ -1,3 +1,5 @@
+from math import isnan
+
 from rest_framework import serializers
 
 from .models import Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution, generate_sample_id
@@ -6,13 +8,32 @@ from .models import Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution, 
 class LabSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lab
-        fields = ["id", "lab_name"]
+        fields = "__all__"
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ["id", "project_name"]
+        fields = "__all__"
+
+
+# use this to transform project names into project objects if they exist
+# this will handle validation on projects but will also allow project names
+# to be nonexistent/null
+class ProjectNameField(serializers.Field):
+    def to_internal_value(self, data):
+        if data:
+            try:
+                project = Project.objects.get(project_name=data)
+                return project
+            except Project.DoesNotExist:
+                raise serializers.ValidationError(f"Project with name '{data}' does not exist.")
+        return None
+
+    def to_representation(self, value):
+        if value:
+            return value.pk
+        return None
 
 
 class WorkFlowSerializer(serializers.ModelSerializer):
@@ -38,22 +59,8 @@ class AliquotSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
-    submitting_lab = serializers.PrimaryKeyRelatedField(
-        queryset=Lab.objects.all(),
-        required=False,
-        allow_null=True,
-        error_messages={
-            "does_not_exist": "The lab does not exist.",
-        },
-    )
-    submitter_project = serializers.PrimaryKeyRelatedField(
-        queryset=Project.objects.all(),
-        required=False,
-        allow_null=True,
-        error_messages={
-            "does_not_exist": "The project does not exist.",
-        },
-    )
+    submitting_lab = serializers.SlugRelatedField(slug_field="lab_name", queryset=Lab.objects.all())
+    submitter_project = ProjectNameField(required=False, allow_null=True)
 
     latest_workflow_execution = serializers.SerializerMethodField()
 
@@ -68,7 +75,7 @@ class SampleSerializer(serializers.ModelSerializer):
         # Check if a sample with the same submitting_lab and sample_name already exists
         if Sample.objects.filter(submitting_lab=submitting_lab, sample_name=sample_name).exists():
             raise serializers.ValidationError(
-                f"Sample with the same sample name {sample_name} already exists. Skipping this sample"
+                f"Sample with the same sample name {sample_name} in this lab already exists. Skipping this sample"
             )
 
         return attrs
@@ -84,3 +91,9 @@ class SampleSerializer(serializers.ModelSerializer):
             serializer = WorkflowExecutionSerializer(latest_execution.workflowexecution_set.first())
             return serializer.data
         return None
+
+    def to_internal_value(self, data):
+        for key, value in data.items():
+            if (isinstance(value, float) or isinstance(value, int)) and isnan(value):
+                data[key] = None
+        return super().to_internal_value(data)

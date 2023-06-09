@@ -43,20 +43,20 @@ def test_data():
         {
             "sample_id": generate_sample_id(),
             "sample_name": "Sample 1",
-            "submitting_lab": lab.pk,
-            "submitter_project": project.pk,
+            "submitting_lab": lab.lab_name,
+            "submitter_project": project.project_name,
         },
         {
             "sample_id": generate_sample_id(),
             "sample_name": "Sample 2",
-            "submitting_lab": lab.pk,
-            "submitter_project": project.pk,
+            "submitting_lab": lab.lab_name,
+            "submitter_project": project.project_name,
         },
         {
             "sample_id": generate_sample_id(),
             "sample_name": "Sample 3",
-            "submitting_lab": lab.pk,
-            "submitter_project": project.pk,
+            "submitting_lab": lab.lab_name,
+            "submitter_project": project.project_name,
         },
     ]
     yield json.dumps(data)
