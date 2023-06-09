@@ -17,7 +17,6 @@ class Command(BaseCommand):
 
         # convert sample type to value
         sample_type_mapping = {value: key for key, value in SAMPLE_TYPE_CHOICES}
-        # Assume 'df' is your pandas DataFrame with the 'sample_type' column
         df["sample_type"] = df["sample_type"].map(sample_type_mapping)
 
         # convert dates
