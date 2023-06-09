@@ -32,7 +32,7 @@ class ProjectNameField(serializers.Field):
 
     def to_representation(self, value):
         if value:
-            return value.pk
+            return value.project_name
         return None
 
 
