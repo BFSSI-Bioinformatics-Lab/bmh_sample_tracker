@@ -2,7 +2,9 @@ import io
 
 import pandas as pd
 import pytest
+from django.conf import settings
 from django.contrib.messages import get_messages
+from django.core.files.base import ContentFile
 from django.urls import reverse
 
 from api.models import Sample, generate_sample_id
@@ -87,3 +89,35 @@ def test_sample_upload_form_view_bad_date(client, test_user, test_data_bad_date)
     assert response.status_code == 302, f"Expected 302, got {response.status_code} instead"
     messages = list(get_messages(response.wsgi_request))
     assert any("Date has wrong format." in str(message) for message in messages), "Expected error message not found"
+
+
+@pytest.mark.django_db
+def test_sample_upload_form_view_requires_login(client, test_data):
+    url = reverse("sample_database:upload-form")
+    response = client.post(url, data=test_data, content_type="application/json")
+
+    login_url = reverse(settings.LOGIN_URL)
+
+    assert response.status_code == 302
+    assert response.url == f"{login_url}?next={url}"
+
+
+@pytest.mark.django_db
+def test_sample_upload_form_view_invalid_file_type(client, test_user, test_data_full):
+    client.login(username=test_user.email, password="test")
+
+    df = pd.DataFrame.from_records(test_data_full)
+
+    text_file = io.BytesIO()
+    df.to_csv(text_file, index=False)
+    text_file.seek(0)
+
+    text_file_content = ContentFile(text_file.read(), name="test.txt")
+
+    response = client.post(
+        reverse("sample_database:upload-form"), {"excel_file": text_file_content}, format="multipart"
+    )
+
+    assert response.status_code == 302, f"Expected 302, got {response.status_code} instead"
+    messages = list(get_messages(response.wsgi_request))
+    assert any("Non-excel file uploaded." in str(message) for message in messages), "Expected error message not found"

@@ -1,5 +1,6 @@
 import json
 
+import magic
 import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -64,6 +65,14 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         file = form.cleaned_data["excel_file"]
+        file_type = magic.from_buffer(file.read(), mime=True)
+        if (
+            file_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ):  # MIME type for .xlsx files
+            messages.error(self.request, "Non-excel file uploaded. Currently, only excel (.xlsx) files are supported.")
+            return redirect(reverse("sample_database:upload-form"))
+        file.seek(0)
+
         df = pd.read_excel(
             file,
             converters={
@@ -97,6 +106,11 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
 
         if missing_columns:
             messages.error(self.request, f'Missing required columns: {", ".join(missing_columns)}')
+            return redirect(reverse("sample_database:upload-form"))
+
+        n_records = df.shape[0]
+        if n_records == 0:
+            messages.error(self.request, "Empty file uploaded. No samples added.")
             return redirect(reverse("sample_database:upload-form"))
 
         data = df.to_dict(orient="records")
