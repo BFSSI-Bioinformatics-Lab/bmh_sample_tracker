@@ -13,8 +13,8 @@ urlpatterns = [
     path("users/", include("bmh_sample_tracker.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
-    path("api/", include("api.urls")),
-    path("sample_database/", include("sample_database.urls")),
+    path("api/", include("api.urls", namespace="api")),
+    path("sample_database/", include("sample_database.urls", namespace="sample_database")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

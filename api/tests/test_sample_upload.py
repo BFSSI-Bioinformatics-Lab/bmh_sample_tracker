@@ -41,7 +41,7 @@ def test_sample_upload(client, test_data, user_factory):
 
     # Assert the values of the saved samples
     sample1 = Sample.objects.get(sample_name="Sample 1")
-    assert sample1.submitting_lab.pk == json.loads(test_data)[0]["submitting_lab"]
+    assert sample1.submitting_lab.lab_name == json.loads(test_data)[0]["submitting_lab"]
 
 
 def test_sample_upload_invalid_lab(client, test_data_invalid_lab, user_factory):
@@ -55,10 +55,9 @@ def test_sample_upload_invalid_lab(client, test_data_invalid_lab, user_factory):
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert not response.data["success"]
-    print(response.data["errors"])
     response_errors = response.data["errors"]
     assert any(
-        "object does not exist" in str(error)
+        "Object with lab_name=9999999999 does not exist." in str(error)
         for field_errors in response_errors
         for errors in field_errors.values()
         for error in errors

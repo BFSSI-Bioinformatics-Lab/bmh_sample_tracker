@@ -1,3 +1,6 @@
+from math import isnan
+
+import pandas as pd
 from rest_framework import serializers
 
 from .models import SAMPLE_TYPE_CHOICES, Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution, generate_sample_id
@@ -6,13 +9,32 @@ from .models import SAMPLE_TYPE_CHOICES, Aliquot, Lab, Project, Sample, Workflow
 class LabSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lab
-        fields = ["id", "lab_name"]
+        fields = "__all__"
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ["id", "project_name"]
+        fields = "__all__"
+
+
+# use this to transform project names into project objects if they exist
+# this will handle validation on projects but will also allow project names
+# to be nonexistent/null
+class ProjectNameField(serializers.Field):
+    def to_internal_value(self, data):
+        if data:
+            try:
+                project = Project.objects.get(project_name=data)
+                return project
+            except Project.DoesNotExist:
+                raise serializers.ValidationError(f"Project with name '{data}' does not exist.")
+        return None
+
+    def to_representation(self, value):
+        if value:
+            return value.project_name
+        return None
 
 
 class WorkFlowSerializer(serializers.ModelSerializer):
@@ -38,34 +60,8 @@ class AliquotSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
-    sample_name = serializers.CharField()
-    well = serializers.CharField(required=False, allow_null=True)
-    submitting_lab = serializers.PrimaryKeyRelatedField(
-        queryset=Lab.objects.all(),
-        required=False,
-        allow_null=True,
-        error_messages={
-            "does_not_exist": "The lab does not exist.",
-        },
-    )
-    sample_type = serializers.ChoiceField(choices=SAMPLE_TYPE_CHOICES, required=False, allow_null=True)
-    sample_volume_in_ul = serializers.FloatField(min_value=0.0, required=False, allow_null=True)
-    requested_services = serializers.CharField(required=False, allow_null=True)
-    submitter_project = serializers.PrimaryKeyRelatedField(
-        queryset=Project.objects.all(), required=False, allow_null=True
-    )
-    strain = serializers.CharField(required=False, allow_null=True)
-    isolate = serializers.CharField(required=False, allow_null=True)
-    genus = serializers.CharField(required=False, allow_null=True)
-    species = serializers.CharField(required=False, allow_null=True)
-    subspecies_subtype_lineage = serializers.CharField(required=False, allow_null=True)
-    approx_genome_size_in_bp = serializers.IntegerField(required=False, allow_null=True)
-    comments = serializers.CharField(required=False, allow_null=True)
-    culture_date = serializers.DateField(required=False, allow_null=True)
-    culture_conditions = serializers.CharField(required=False, allow_null=True)
-    dna_extraction_date = serializers.DateField(required=False, allow_null=True)
-    dna_extraction_method = serializers.CharField(required=False, allow_null=True)
-    qubit_concentration_in_ng_ul = serializers.FloatField(min_value=0.0, required=False, allow_null=True)
+    submitting_lab = serializers.SlugRelatedField(slug_field="lab_name", queryset=Lab.objects.all())
+    submitter_project = ProjectNameField(required=False, allow_null=True)
 
     latest_workflow_execution = serializers.SerializerMethodField()
 
@@ -80,7 +76,7 @@ class SampleSerializer(serializers.ModelSerializer):
         # Check if a sample with the same submitting_lab and sample_name already exists
         if Sample.objects.filter(submitting_lab=submitting_lab, sample_name=sample_name).exists():
             raise serializers.ValidationError(
-                f"Sample with the same sample name {sample_name} already exists. Skipping this sample"
+                f"Sample with the same sample name '{sample_name}' in already exists for lab '{submitting_lab}'."
             )
 
         return attrs
@@ -96,3 +92,25 @@ class SampleSerializer(serializers.ModelSerializer):
             serializer = WorkflowExecutionSerializer(latest_execution.workflowexecution_set.first())
             return serializer.data
         return None
+
+    def to_internal_value(self, data):
+        for key, value in data.items():
+            if (isinstance(value, float) or isinstance(value, int)) and isnan(value):
+                data[key] = None
+
+        # Convert sample type to internal representation
+        sample_type_mapping = {value: key for key, value in SAMPLE_TYPE_CHOICES}
+        sample_type = data.get("sample_type")
+        if sample_type is not None:
+            data["sample_type"] = sample_type_mapping.get(sample_type, sample_type)
+
+        # Convert dates to ISO format
+        for date_field in ["culture_date", "dna_extraction_date"]:
+            date_value = data.get(date_field)
+            if date_value:
+                try:
+                    data[date_field] = pd.to_datetime(date_value, errors="coerce").date().isoformat()
+                except Exception:
+                    data[date_field] = None
+
+        return super().to_internal_value(data)
