@@ -26,6 +26,7 @@
                         </div>
                     </div>
                 </div>
+                {% if request.user.is_staff %}
                 <div class="col-lg-4">
                     <div class="card mb-5 mb-lg-0">
                         <img src="{% static 'images/logo.svg' %}" alt="Admin" class="card-img-top">
@@ -36,6 +37,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </section>
