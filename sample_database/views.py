@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
-from api.models import SAMPLE_TYPE_CHOICES, Aliquot, Batch, Sample, WorkflowExecution
+from api.models import Aliquot, Batch, Sample, WorkflowExecution
 from api.views import SampleUploadView
 
 from .forms import UploadForm
@@ -50,19 +50,54 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
     form_class = UploadForm
     # success_url = reverse_lazy('success')
 
+    def date_converter(self, date):
+        if not date or date is None or date == "null":
+            return ""  # return empty string for empty, None, or null values
+        if isinstance(date, str) and len(date) == 10:
+            return (
+                date  # return ISO format date as is. Note that proper validation will be performed by the serializer
+            )
+        try:
+            return date.date().isoformat()  # convert date to ISO format
+        except AttributeError:  # handles non-datetime values
+            return date  # return input as is for other cases
+
     def form_valid(self, form):
         file = form.cleaned_data["excel_file"]
-        df = pd.read_excel(file)
-
-        # convert sample type to value
-        sample_type_mapping = {value: key for key, value in SAMPLE_TYPE_CHOICES}
-        df["sample_type"] = df["sample_type"].map(sample_type_mapping)
-
-        # convert the dates to strings
-        df["culture_date"] = df["culture_date"].apply(lambda x: x.strftime("%Y-%m-%d") if pd.notnull(x) else x)
-        df["dna_extraction_date"] = df["dna_extraction_date"].apply(
-            lambda x: x.strftime("%Y-%m-%d") if pd.notnull(x) else x
+        df = pd.read_excel(
+            file,
+            converters={
+                "culture_date": self.date_converter,
+                "dna_extraction_date": self.date_converter,
+            },
         )
+
+        required_columns = [
+            "sample_name",
+            "well",
+            "submitting_lab",
+            "sample_type",
+            "sample_volume_in_ul",
+            "submitter_project",
+            "strain",
+            "isolate",
+            "genus",
+            "species",
+            "subspecies_subtype_lineage",
+            "approx_genome_size_in_bp",
+            "comments",
+            "culture_date",
+            "culture_conditions",
+            "dna_extraction_date",
+            "dna_extraction_method",
+            "qubit_concentration_in_ng_ul",
+        ]
+
+        missing_columns = [col for col in required_columns if col not in df.columns]
+
+        if missing_columns:
+            messages.error(self.request, f'Missing required columns: {", ".join(missing_columns)}')
+            return redirect(reverse("sample_database:upload-form"))
 
         data = df.to_dict(orient="records")
         json_data = json.dumps(data)
@@ -73,7 +108,7 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
         # Handle the API response based on the status code
         if response.status_code == 201:
             messages.success(self.request, "Data uploaded successfully.")
-            print(self.request, "Data uploaded successfully.")
+            return redirect(reverse("sample_database:sample-db"))
         elif response.status_code == 400:
             errors = response.data["errors"]
             if isinstance(errors, list):
@@ -82,14 +117,18 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
                     for field, error_messages in error_dict.items():
                         for error_message in error_messages:
                             messages.error(self.request, f"Error in field {field}: {error_message}")
+                            return redirect(reverse("sample_database:upload-form"))
             else:
                 # If errors is a dictionary
                 for field, error_messages in errors.items():
                     for error_message in error_messages:
                         messages.error(self.request, f"Error in field {field}: {error_message}")
+                        return redirect(reverse("sample_database:upload-form"))
         elif response.status_code == 500:
             error_message = response.data["errors"]
             messages.error(self.request, f"Internal server error: {error_message}")
+            return redirect(reverse("sample_database:upload-form"))
+            # TODO: log this error somewhere
         else:
             # Handle other status codes if necessary
             pass

@@ -1,8 +1,9 @@
 from math import isnan
 
+import pandas as pd
 from rest_framework import serializers
 
-from .models import Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution, generate_sample_id
+from .models import SAMPLE_TYPE_CHOICES, Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution, generate_sample_id
 
 
 class LabSerializer(serializers.ModelSerializer):
@@ -75,7 +76,7 @@ class SampleSerializer(serializers.ModelSerializer):
         # Check if a sample with the same submitting_lab and sample_name already exists
         if Sample.objects.filter(submitting_lab=submitting_lab, sample_name=sample_name).exists():
             raise serializers.ValidationError(
-                f"Sample with the same sample name {sample_name} in this lab already exists. Skipping this sample"
+                f"Sample with the same sample name '{sample_name}' in already exists for lab '{submitting_lab}'."
             )
 
         return attrs
@@ -96,4 +97,20 @@ class SampleSerializer(serializers.ModelSerializer):
         for key, value in data.items():
             if (isinstance(value, float) or isinstance(value, int)) and isnan(value):
                 data[key] = None
+
+        # Convert sample type to internal representation
+        sample_type_mapping = {value: key for key, value in SAMPLE_TYPE_CHOICES}
+        sample_type = data.get("sample_type")
+        if sample_type is not None:
+            data["sample_type"] = sample_type_mapping.get(sample_type, sample_type)
+
+        # Convert dates to ISO format
+        for date_field in ["culture_date", "dna_extraction_date"]:
+            date_value = data.get(date_field)
+            if date_value:
+                try:
+                    data[date_field] = pd.to_datetime(date_value, errors="coerce").date().isoformat()
+                except Exception:
+                    data[date_field] = None
+
         return super().to_internal_value(data)

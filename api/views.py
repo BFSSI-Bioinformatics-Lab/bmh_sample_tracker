@@ -32,7 +32,6 @@ class SampleUploadView(LoginRequiredMixin, APIView):
     def post(self, request, data=None):
         data = data if data else request.data
         serializer = SampleSerializer(data=json.loads(data), many=True)
-
         if serializer.is_valid():
             sample_instances = serializer.save()  # could be one or more samples
 
