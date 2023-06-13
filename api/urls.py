@@ -11,7 +11,7 @@ app_name = "api"
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path("", include(router.urls)),
-    path("sample/", SampleAPIView.as_view()),
+    path("sample/", SampleAPIView.as_view(), name="sample-list"),
     path("upload/", SampleUploadView.as_view(), name="sample-upload"),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

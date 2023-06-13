@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Group
 from factory import Faker, SubFactory
 from factory.django import DjangoModelFactory
 
@@ -12,6 +13,15 @@ class LabFactory(DjangoModelFactory):
 
     class Meta:
         model = Lab
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        lab = super()._create(model_class, *args, **kwargs)
+
+        # Create a group associated with this lab
+        Group.objects.get_or_create(name=lab.lab_name)
+
+        return lab
 
 
 class ProjectFactory(DjangoModelFactory):
