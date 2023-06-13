@@ -132,8 +132,7 @@ class HomePageViewTest(TestCase):
     def test_home_page_for_staff(self):
         staff_user = UserFactory(is_staff=True)
         self.client.force_login(staff_user)
-
-        response = self.client.get(reverse("home"))  # use the name of your home page view here
+        response = self.client.get(reverse("home"))
 
         self.assertContains(response, "Admin")
         self.assertContains(response, reverse("admin:index"))
@@ -141,8 +140,7 @@ class HomePageViewTest(TestCase):
     def test_home_page_for_non_staff(self):
         non_staff_user = UserFactory(is_staff=False)
         self.client.force_login(non_staff_user)
-
-        response = self.client.get(reverse("home"))  # use the name of your home page view here
+        response = self.client.get(reverse("home"))
 
         self.assertNotContains(response, "Admin")
         self.assertNotContains(response, reverse("admin:index"))
