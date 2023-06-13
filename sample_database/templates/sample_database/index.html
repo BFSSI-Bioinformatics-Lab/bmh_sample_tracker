@@ -96,6 +96,10 @@
       language: {
         search: 'Search all fields:',
       },
+      dom: 'Bfrtip', // Specify the Buttons extension
+      buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print' // Add the export buttons you want to include
+      ],
       initComplete: function () {
         // Apply the search
         this.api()
