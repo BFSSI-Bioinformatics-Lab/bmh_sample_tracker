@@ -5,10 +5,12 @@ import pytest
 from django.conf import settings
 from django.contrib.messages import get_messages
 from django.core.files.base import ContentFile
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from api.models import Sample, generate_sample_id
 from api.tests.factories import LabFactory, ProjectFactory
+from bmh_sample_tracker.users.tests.factories import UserFactory
 
 
 @pytest.mark.django_db
@@ -121,3 +123,24 @@ def test_sample_upload_form_view_invalid_file_type(client, test_user, test_data_
     assert response.status_code == 302, f"Expected 302, got {response.status_code} instead"
     messages = list(get_messages(response.wsgi_request))
     assert any("Non-excel file uploaded." in str(message) for message in messages), "Expected error message not found"
+
+
+class HomePageViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_home_page_for_staff(self):
+        staff_user = UserFactory(is_staff=True)
+        self.client.force_login(staff_user)
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, "Admin")
+        self.assertContains(response, reverse("admin:index"))
+
+    def test_home_page_for_non_staff(self):
+        non_staff_user = UserFactory(is_staff=False)
+        self.client.force_login(non_staff_user)
+        response = self.client.get(reverse("home"))
+
+        self.assertNotContains(response, "Admin")
+        self.assertNotContains(response, reverse("admin:index"))
