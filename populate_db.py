@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 
 from api.models import Lab, Project, Workflow
 
-excelfile = "lims_test_sample_sheet.xlsx"
+excelfile = "populate_db_input.xlsx"
 
 # labs
 lab_df = pd.read_excel(excelfile, sheet_name="submitting_lab_List")
