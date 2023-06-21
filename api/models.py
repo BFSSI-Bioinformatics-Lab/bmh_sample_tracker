@@ -1,14 +1,16 @@
 from datetime import datetime
 
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxLengthValidator, RegexValidator
 from django.db import models
 from simple_history.models import HistoricalRecords
 
 from bmh_sample_tracker.users.models import User
 
 # Sensible field sizes for CharField columns
-LG_CHAR = 1500
-MD_CHAR = 500
+LG_CHAR = 250
 SM_CHAR = 50
+MIN_CHAR = 3
 
 SAMPLE_TYPE_CHOICES = [
     ("CELLS", "Cells (in DNA/RNA shield)"),
@@ -16,6 +18,28 @@ SAMPLE_TYPE_CHOICES = [
     ("AMPLICON", "Amplicon"),
     ("OTHER", "Other"),
 ]
+
+well_regex = r"^[A-Z]\d{2}$"
+well_validator = RegexValidator(
+    regex=well_regex,
+    message="Well should be a capital letter followed by a two-digit number (e.g., A01, B02, etc.)",
+)
+alphanumeric_underscore_hyphen_regex = r"^[a-zA-Z0-9_-]+$"
+alphanumeric_underscore_hyphen_validator = RegexValidator(
+    regex=alphanumeric_underscore_hyphen_regex,
+    message="Field should only contain alphanumeric characters, underscores, and dashes.",
+)
+alphabetic_regex = r"^[a-zA-Z]+$"
+alphabetic_validator = RegexValidator(
+    regex=alphabetic_regex, message="Field should only contain alphabetic characters"
+)
+
+med_length_validator = MaxLengthValidator(SM_CHAR, message=f"Field should only contain {SM_CHAR} characters")
+
+
+def min_length_validator(value):
+    if len(value) < MIN_CHAR:
+        raise ValidationError(f"Text should have a minimum length of {MIN_CHAR} characters.")
 
 
 def generate_sample_id() -> str:
@@ -84,32 +108,32 @@ class Sample(TimeStampedModel):
     Model to store individual samples
     """
 
+    # required fields
     sample_id = models.CharField(max_length=SM_CHAR, default=generate_sample_id)
-    sample_name = models.CharField(max_length=SM_CHAR)
-    well = models.CharField(max_length=SM_CHAR, blank=True, null=True)
-    submitting_lab = models.ForeignKey(Lab, on_delete=models.CASCADE, null=True, blank=True)
-
-    sample_type = models.CharField(
-        max_length=SM_CHAR,
-        choices=SAMPLE_TYPE_CHOICES,
-        blank=True,
-        null=True,
+    sample_name = models.CharField(
+        max_length=SM_CHAR, validators=[min_length_validator, alphanumeric_underscore_hyphen_validator]
     )
-    sample_volume_in_ul = models.FloatField(null=True, blank=True)
-    requested_services = models.TextField(null=True, blank=True)
-    submitter_project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
+    tube_label = models.CharField(max_length=SM_CHAR)
+    submitting_lab = models.ForeignKey(Lab, on_delete=models.CASCADE)
+    sample_type = models.CharField(max_length=SM_CHAR, choices=SAMPLE_TYPE_CHOICES)
+    sample_volume_in_ul = models.FloatField()
+    requested_services = models.TextField(max_length=LG_CHAR)
+    genus = models.CharField(max_length=SM_CHAR, validators=[alphabetic_validator])
+    species = models.CharField(max_length=SM_CHAR, validators=[alphabetic_validator])
 
-    strain = models.CharField(max_length=SM_CHAR, null=True, blank=True)
-    isolate = models.CharField(max_length=SM_CHAR, null=True, blank=True)
-    genus = models.CharField(max_length=SM_CHAR, null=True, blank=True)
-    species = models.CharField(max_length=SM_CHAR, null=True, blank=True)
-    subspecies_subtype_lineage = models.CharField(max_length=SM_CHAR, null=True, blank=True)
+    # optional fields
+    well = models.CharField(max_length=SM_CHAR, blank=True, null=True, validators=[well_validator])
+    submitter_project = models.CharField(max_length=SM_CHAR, null=True, blank=True)
+    bmh_project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
+    strain = models.CharField(max_length=SM_CHAR, null=True, blank=True, validators=[alphabetic_validator])
+    isolate = models.CharField(max_length=SM_CHAR, null=True, blank=True, validators=[alphabetic_validator])
+    subspecies_subtype_lineage = models.CharField(max_length=LG_CHAR, null=True, blank=True)
     approx_genome_size_in_bp = models.IntegerField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
     culture_date = models.DateField(blank=True, null=True)
     culture_conditions = models.TextField(blank=True, null=True)
     dna_extraction_date = models.DateField(blank=True, null=True)
-    dna_extraction_method = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+    dna_extraction_method = models.TextField(blank=True, null=True)
     qubit_concentration_in_ng_ul = models.FloatField(blank=True, null=True)
 
     history = HistoricalRecords()
