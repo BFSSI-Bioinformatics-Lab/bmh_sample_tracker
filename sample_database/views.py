@@ -81,25 +81,18 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
             },
         )
 
+        model_fields = [f.name for f in Sample._meta.get_fields()]
         required_columns = [
             "sample_name",
-            "well",
+            "tube_label",
             "submitting_lab",
             "sample_type",
             "sample_volume_in_ul",
-            "submitter_project",
-            "strain",
-            "isolate",
+            "requested_services",
             "genus",
             "species",
-            "subspecies_subtype_lineage",
-            "approx_genome_size_in_bp",
-            "comments",
-            "culture_date",
-            "culture_conditions",
-            "dna_extraction_date",
-            "dna_extraction_method",
-            "qubit_concentration_in_ng_ul",
+            "submitter_project",
+            "bmh_project",
         ]
 
         missing_columns = [col for col in required_columns if col not in df.columns]
@@ -112,6 +105,9 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
         if n_records == 0:
             messages.error(self.request, "Empty file uploaded. No samples added.")
             return redirect(reverse("sample_database:upload-form"))
+
+        # keep only the columns that exist in the Sample model
+        df = df[[col for col in df.columns if col in model_fields]]
 
         data = df.to_dict(orient="records")
         json_data = json.dumps(data)

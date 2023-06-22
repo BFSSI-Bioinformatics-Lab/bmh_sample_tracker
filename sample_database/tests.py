@@ -1,4 +1,5 @@
 import io
+import json
 
 import pandas as pd
 import pytest
@@ -94,9 +95,9 @@ def test_sample_upload_form_view_bad_date(client, test_user, test_data_bad_date)
 
 
 @pytest.mark.django_db
-def test_sample_upload_form_view_requires_login(client, test_data):
+def test_sample_upload_form_view_requires_login(client, test_data_full):
     url = reverse("sample_database:upload-form")
-    response = client.post(url, data=test_data, content_type="application/json")
+    response = client.post(url, data=json.dumps(test_data_full), content_type="application/json")
 
     login_url = reverse(settings.LOGIN_URL)
 
