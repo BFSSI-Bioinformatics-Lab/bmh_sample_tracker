@@ -13,9 +13,9 @@ from api.views import SampleUploadView
 pytestmark = pytest.mark.django_db
 
 
-def test_sample_upload_requires_login(client, test_data):
+def test_sample_upload_requires_login(client, test_data_full):
     url = reverse("api:sample-upload")
-    response = client.post(url, data=test_data, content_type="application/json")
+    response = client.post(url, data=json.dumps(test_data_full), content_type="application/json")
 
     login_url = reverse(settings.LOGIN_URL)
 
@@ -24,11 +24,11 @@ def test_sample_upload_requires_login(client, test_data):
     assert response.url == f"{login_url}?next=/api/upload/"
 
 
-def test_sample_upload(client, test_data, user_factory):
+def test_sample_upload(client, test_data_full, user_factory):
     url = reverse("api:sample-upload")
     factory = APIRequestFactory()
     user = user_factory()
-    request = factory.post(url, data=test_data, format="json")
+    request = factory.post(url, data=json.dumps(test_data_full), format="json")
     request.user = user
     view = SampleUploadView.as_view()
     response = view(request)
@@ -40,8 +40,8 @@ def test_sample_upload(client, test_data, user_factory):
     assert Sample.objects.count() == 3
 
     # Assert the values of the saved samples
-    sample1 = Sample.objects.get(sample_name="Sample 1")
-    assert sample1.submitting_lab.lab_name == json.loads(test_data)[0]["submitting_lab"]
+    sample1 = Sample.objects.get(sample_name="Sample_1")
+    assert sample1.submitting_lab.lab_name == test_data_full[0]["submitting_lab"]
 
 
 def test_sample_upload_invalid_lab(client, test_data_invalid_lab, user_factory):

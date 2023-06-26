@@ -44,33 +44,6 @@ def test_user():
 
 
 @pytest.fixture
-def test_data():
-    project = ProjectFactory()
-    lab = LabFactory()
-    data = [
-        {
-            "sample_id": generate_sample_id(),
-            "sample_name": "Sample 1",
-            "submitting_lab": lab.lab_name,
-            "submitter_project": project.project_name,
-        },
-        {
-            "sample_id": generate_sample_id(),
-            "sample_name": "Sample 2",
-            "submitting_lab": lab.lab_name,
-            "submitter_project": project.project_name,
-        },
-        {
-            "sample_id": generate_sample_id(),
-            "sample_name": "Sample 3",
-            "submitting_lab": lab.lab_name,
-            "submitter_project": project.project_name,
-        },
-    ]
-    yield json.dumps(data)
-
-
-@pytest.fixture
 def api_client():
     return APIClient()
 
@@ -80,7 +53,7 @@ def test_data_invalid_lab():
     data = [
         {
             "sample_id": generate_sample_id(),
-            "sample_name": "Sample 1",
+            "sample_name": "Sample_1",
             "submitting_lab": 9999999999,
             "submitter_project": 9999999999999,
         },
@@ -93,7 +66,7 @@ def test_data_missing_sample_id():
     project = ProjectFactory()
     lab = LabFactory()
     data = [
-        {"sample_name": "Sample 1", "submitting_lab": lab.pk, "submitter_project": project.pk},
+        {"sample_name": "Sample_1", "submitting_lab": lab.pk, "submitter_project": project.pk},
     ]
     yield json.dumps(data)
 
@@ -104,67 +77,40 @@ def test_data_full():
     lab = LabFactory()
     data = [
         {
-            "sample_id": generate_sample_id(),
-            "sample_name": "Sample 1",
-            "well": "",
+            "sample_name": "Sample_1",
+            "tube_label": "Tube1",
             "submitting_lab": lab.lab_name,
-            "sample_type": "",
-            "sample_volume_in_ul": "",
-            "submitter_project": project.project_name,
-            "strain": "",
-            "isolate": "",
-            "genus": "",
-            "species": "",
-            "subspecies_subtype_lineage": "",
-            "approx_genome_size_in_bp": "",
-            "comments": "",
-            "culture_date": "",
-            "culture_conditions": "",
-            "dna_extraction_date": "",
-            "dna_extraction_method": "",
-            "qubit_concentration_in_ng_ul": "",
+            "sample_type": "DNA",
+            "sample_volume_in_ul": 25.0,
+            "requested_services": "Sequencing",
+            "genus": "GenusA",
+            "species": "SpeciesA",
+            "submitter_project": "proj1",
+            "bmh_project": project.project_name,
         },
         {
-            "sample_id": generate_sample_id(),
-            "sample_name": "Sample 2",
-            "well": "",
+            "sample_name": "Sample_2",
+            "tube_label": "Tube2",
             "submitting_lab": lab.lab_name,
-            "sample_type": "",
-            "sample_volume_in_ul": "",
-            "submitter_project": project.project_name,
-            "strain": "",
-            "isolate": "",
-            "genus": "",
-            "species": "",
-            "subspecies_subtype_lineage": "",
-            "approx_genome_size_in_bp": "",
-            "comments": "",
-            "culture_date": "",
-            "culture_conditions": "",
-            "dna_extraction_date": "",
-            "dna_extraction_method": "",
-            "qubit_concentration_in_ng_ul": "",
+            "sample_type": "CELLS",
+            "sample_volume_in_ul": 35.0,
+            "requested_services": "Sequencing",
+            "genus": "GenusB",
+            "species": "SpeciesB",
+            "submitter_project": "proj2",
+            "bmh_project": project.project_name,
         },
         {
-            "sample_id": generate_sample_id(),
-            "sample_name": "Sample 3",
-            "well": "",
+            "sample_name": "Sample_3",
+            "tube_label": "Tube3",
             "submitting_lab": lab.lab_name,
-            "sample_type": "",
-            "sample_volume_in_ul": "",
-            "submitter_project": project.project_name,
-            "strain": "",
-            "isolate": "",
-            "genus": "",
-            "species": "",
-            "subspecies_subtype_lineage": "",
-            "approx_genome_size_in_bp": "",
-            "comments": "",
-            "culture_date": "",
-            "culture_conditions": "",
-            "dna_extraction_date": "",
-            "dna_extraction_method": "",
-            "qubit_concentration_in_ng_ul": "",
+            "sample_type": "AMPLICON",
+            "sample_volume_in_ul": 45.0,
+            "requested_services": "Sequencing",
+            "genus": "GenusC",
+            "species": "SpeciesC",
+            "submitter_project": "proj3",
+            "bmh_project": project.project_name,
         },
     ]
     yield data

@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from factory import Faker, SubFactory
 from factory.django import DjangoModelFactory
 
-from api.models import Lab, Project, Sample
+from api.models import SAMPLE_TYPE_CHOICES, Lab, Project, Sample
 from bmh_sample_tracker.users.tests.factories import UserFactory
 
 
@@ -36,25 +36,29 @@ class ProjectFactory(DjangoModelFactory):
 
 class SampleFactory(DjangoModelFactory):
     sample_id = Faker("uuid4")
-    sample_name = Faker("word")
-    well = Faker("word")
+    sample_name = Faker("user_name")
+    tube_label = Faker("bothify", text="Tube-##??", letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     submitting_lab = SubFactory(LabFactory)
-    sample_type = Faker("random_element", elements=["CELLS", "DNA", "AMPLICON", "OTHER"])
-    sample_volume_in_ul = Faker("random_number", digits=2)
+    sample_type = Faker("random_element", elements=[choice[0] for choice in SAMPLE_TYPE_CHOICES])
+    sample_volume_in_ul = Faker("pyfloat", positive=True)
     requested_services = Faker("paragraph")
-    submitter_project = SubFactory(ProjectFactory)
-    strain = Faker("word")
-    isolate = Faker("word")
     genus = Faker("word")
     species = Faker("word")
-    subspecies_subtype_lineage = Faker("word")
+
+    # Optional fields
+    well = Faker("bothify", text="?##", letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    bmh_project = SubFactory(ProjectFactory)
+    submitter_project = Faker("word")
+    strain = Faker("word")
+    isolate = Faker("word")
+    subspecies_subtype_lineage = Faker("sentence")
     approx_genome_size_in_bp = Faker("pyint")
     comments = Faker("paragraph")
     culture_date = Faker("date")
     culture_conditions = Faker("paragraph")
     dna_extraction_date = Faker("date")
-    dna_extraction_method = Faker("word")
-    qubit_concentration_in_ng_ul = Faker("pyfloat")
+    dna_extraction_method = Faker("sentence")
+    qubit_concentration_in_ng_ul = Faker("pyfloat", positive=True)
 
     class Meta:
         model = Sample
