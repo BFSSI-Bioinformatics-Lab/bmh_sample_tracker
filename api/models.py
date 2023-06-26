@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxLengthValidator, RegexValidator
+from django.core.validators import RegexValidator
 from django.db import models
 from simple_history.models import HistoricalRecords
 
@@ -33,8 +33,6 @@ alphabetic_regex = r"^[a-zA-Z]+$"
 alphabetic_validator = RegexValidator(
     regex=alphabetic_regex, message="Field should only contain alphabetic characters"
 )
-
-med_length_validator = MaxLengthValidator(SM_CHAR, message=f"Field should only contain {SM_CHAR} characters")
 
 
 def min_length_validator(value):
