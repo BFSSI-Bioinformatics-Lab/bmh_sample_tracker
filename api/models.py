@@ -123,7 +123,7 @@ class Sample(TimeStampedModel):
     well = models.CharField(max_length=SM_CHAR, blank=True, null=True, validators=[well_validator])
     submitter_project = models.CharField(max_length=SM_CHAR, null=True, blank=True)
     bmh_project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
-    strain = models.CharField(max_length=SM_CHAR, null=True, blank=True, validators=[alphabetic_validator])
+    strain = models.CharField(max_length=SM_CHAR, null=True, blank=True)
     isolate = models.CharField(max_length=SM_CHAR, null=True, blank=True, validators=[alphabetic_validator])
     subspecies_subtype_lineage = models.CharField(max_length=LG_CHAR, null=True, blank=True)
     approx_genome_size_in_bp = models.IntegerField(blank=True, null=True)
@@ -133,6 +133,7 @@ class Sample(TimeStampedModel):
     dna_extraction_date = models.DateField(blank=True, null=True)
     dna_extraction_method = models.TextField(blank=True, null=True)
     qubit_concentration_in_ng_ul = models.FloatField(blank=True, null=True)
+    received = models.BooleanField(blank=True, null=True)
 
     history = HistoricalRecords()
 
