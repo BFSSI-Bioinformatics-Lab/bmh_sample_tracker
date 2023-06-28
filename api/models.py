@@ -124,7 +124,7 @@ class Sample(TimeStampedModel):
     submitter_project = models.CharField(max_length=SM_CHAR, null=True, blank=True)
     bmh_project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
     strain = models.CharField(max_length=SM_CHAR, null=True, blank=True)
-    isolate = models.CharField(max_length=SM_CHAR, null=True, blank=True, validators=[alphabetic_validator])
+    isolate = models.CharField(max_length=SM_CHAR, null=True, blank=True)
     subspecies_subtype_lineage = models.CharField(max_length=LG_CHAR, null=True, blank=True)
     approx_genome_size_in_bp = models.IntegerField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
