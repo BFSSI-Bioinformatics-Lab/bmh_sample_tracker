@@ -10,13 +10,15 @@
         <dt class="col-sm-3">Sample ID</dt>
         <dd class="col-sm-9">{{ sample.sample_id }}</dd>
 
-        {% if object.submitting_lab %}
         <dt class="col-sm-3">Submitting Lab</dt>
         <dd class="col-sm-9">{{ sample.submitting_lab.lab_name }}</dd>
-        {% endif %} {% if object.submitter_project %}
+
         <dt class="col-sm-3">Submitter Project</dt>
         <dd class="col-sm-9">{{ sample.submitter_project.project_name }}</dd>
-        {% endif %}
+
+        <dt class="col-sm-3">BMH Project</dt>
+        <dd class="col-sm-9">{{ sample.bmh_project.project_name }}</dd>
+
         <hr />
 
         <dt class="col-sm-3">Requested Services</dt>
@@ -28,15 +30,10 @@
         <dt class="col-sm-3">Sample Volume</dt>
         <dd class="col-sm-9">{{ sample.sample_volume_in_ul }} μL</dd>
 
-        <dt class="col-sm-3">Well</dt>
-        <dd class="col-sm-9">{{ sample.well }}</dd>
+        <dt class="col-sm-3">Tube Label</dt>
+        <dd class="col-sm-9">{{ sample.tube_label }}</dd>
+
         <hr />
-
-        <dt class="col-sm-3">Strain</dt>
-        <dd class="col-sm-9">{{ sample.strain }}</dd>
-
-        <dt class="col-sm-3">Isolate</dt>
-        <dd class="col-sm-9">{{ sample.isolate }}</dd>
 
         <dt class="col-sm-3">Genus</dt>
         <dd class="col-sm-9">{{ sample.genus }}</dd>
@@ -44,11 +41,18 @@
         <dt class="col-sm-3">Species</dt>
         <dd class="col-sm-9">{{ sample.species }}</dd>
 
+        <dt class="col-sm-3">Strain</dt>
+        <dd class="col-sm-9">{{ sample.strain }}</dd>
+
+        <dt class="col-sm-3">Isolate</dt>
+        <dd class="col-sm-9">{{ sample.isolate }}</dd>
+
         <dt class="col-sm-3">Subspecies/Subtype/Lineage</dt>
         <dd class="col-sm-9">{{ sample.subspecies_subtype_lineage }}</dd>
 
         <dt class="col-sm-3">Approx. Genome Size</dt>
         <dd class="col-sm-9">{{ sample.approx_genome_size_in_bp }} bp</dd>
+
         <hr />
 
         <dt class="col-sm-3">Culture Date</dt>
@@ -64,9 +68,7 @@
         <dd class="col-sm-9">{{ sample.dna_extraction_method }}</dd>
 
         <dt class="col-sm-3">Qubit Concentration</dt>
-        <dd class="col-sm-9">
-          {{ sample.qubit_concentration_in_ng_ul }} ng/μL
-        </dd>
+        <dd class="col-sm-9">{{ sample.qubit_concentration_in_ng_ul }} ng/μL</dd>
 
         <dt class="col-sm-3">Comments</dt>
         <dd class="col-sm-9">{{ sample.comments }}</dd>

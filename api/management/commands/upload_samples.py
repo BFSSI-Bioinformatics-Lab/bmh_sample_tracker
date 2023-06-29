@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from django.core.management.base import BaseCommand
 
@@ -23,6 +24,9 @@ class Command(BaseCommand):
         df["culture_date"] = df["culture_date"].dt.date
         df["dna_extraction_date"] = pd.to_datetime(df["culture_date"], errors="coerce")
         df["dna_extraction_date"] = df["dna_extraction_date"].dt.date
+
+        # NaNs mess with JSON, so replace them
+        df = df.replace(np.nan, None)
 
         data = df.to_dict(orient="records")
         serializer = SampleSerializer(data=data, many=True)
