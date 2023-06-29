@@ -45,6 +45,10 @@
         dataSrc: '',
       },
       order: [[0, 'desc']],
+      lengthMenu: [
+        [10, 50, 100, -1],
+        [10, 50, 100, 'All'],
+      ],
       columns: [
         {
           data: 'sample_id',
@@ -96,9 +100,9 @@
       language: {
         search: 'Search all fields:',
       },
-      dom: 'Bfrtip', // Specify the Buttons extension
+      dom: '<lf<t>ipB>',
       buttons: [
-        'copy', 'csv', 'excel', 'pdf', 'print' // Add the export buttons you want to include
+        'copy', 'csv', 'print'
       ],
       initComplete: function () {
         // Apply the search
