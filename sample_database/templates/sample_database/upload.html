@@ -2,7 +2,24 @@
     <h2>Upload Excel File</h2>
     <form method="post" enctype="multipart/form-data" action="{% url 'sample_database:upload-form' %}">
         {% csrf_token %}
-        {{ form }}
+        <div>
+            {{ form.lab.label_tag }} {{ form.lab }}
+        </div>
+        <br>
+        <div>
+            Select a project from the drop-down below OR enter project name for new projects. You must do one or the other, but not both.
+        </div>
+        <div>
+            {{ form.bmh_project.label_tag }} {{ form.bmh_project }}
+        </div>
+        <div>
+            {{ form.submitter_project.label_tag }} {{ form.submitter_project }}
+        </div>
+        <br>
+        <div>
+            {{ form.excel_file.label_tag }} {{ form.excel_file }}
+        </div>
+        <br>
         <input type="submit" value="Upload">
     </form>
 

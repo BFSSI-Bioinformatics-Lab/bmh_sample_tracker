@@ -49,7 +49,11 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
     login_url = "/accounts/login/"
     template_name = "sample_database/upload.html"
     form_class = UploadForm
-    # success_url = reverse_lazy('success')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"user": self.request.user})
+        return kwargs
 
     def date_converter(self, date):
         if not date or date is None or date == "null":
@@ -64,6 +68,12 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
             return date  # return input as is for other cases
 
     def form_valid(self, form):
+        if not form.is_valid():
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(self.request, f"{field}: {error}")
+            return redirect(reverse("sample_database:upload-form"))
+
         file = form.cleaned_data["excel_file"]
         file_type = magic.from_buffer(file.read(), mime=True)
         if (
@@ -73,6 +83,10 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
             return redirect(reverse("sample_database:upload-form"))
         file.seek(0)
 
+        lab_name = form.cleaned_data["lab"]
+        bmh_project_name = form.cleaned_data["bmh_project"]
+        submitter_project_name = form.cleaned_data["submitter_project"]
+
         df = pd.read_excel(
             file,
             converters={
@@ -80,6 +94,10 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
                 "dna_extraction_date": self.date_converter,
             },
         )
+
+        df["bmh_project"] = bmh_project_name
+        df["submitter_project"] = submitter_project_name
+        df["submitting_lab"] = lab_name
 
         model_fields = [f.name for f in Sample._meta.get_fields()]
         required_columns = [
@@ -91,8 +109,6 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
             "requested_services",
             "genus",
             "species",
-            "submitter_project",
-            "bmh_project",
         ]
 
         missing_columns = [col for col in required_columns if col not in df.columns]
