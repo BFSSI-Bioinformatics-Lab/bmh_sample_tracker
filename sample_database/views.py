@@ -1,9 +1,8 @@
 import json
 
-import magic
-import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -16,6 +15,7 @@ from api.models import Aliquot, Batch, Sample, WorkflowExecution
 from api.views import SampleUploadView
 
 from .forms import UploadForm
+from .validation import DataCleanerValidator
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -55,75 +55,28 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
         kwargs.update({"user": self.request.user})
         return kwargs
 
-    def date_converter(self, date):
-        if not date or date is None or date == "null":
-            return ""  # return empty string for empty, None, or null values
-        if isinstance(date, str) and len(date) == 10:
-            return (
-                date  # return ISO format date as is. Note that proper validation will be performed by the serializer
-            )
-        try:
-            return date.date().isoformat()  # convert date to ISO format
-        except AttributeError:  # handles non-datetime values
-            return date  # return input as is for other cases
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(self.request, f"{field}: {error}")
+        return super().form_invalid(form)
 
     def form_valid(self, form):
-        if not form.is_valid():
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(self.request, f"{field}: {error}")
-            return redirect(reverse("sample_database:upload-form"))
-
         file = form.cleaned_data["excel_file"]
-        file_type = magic.from_buffer(file.read(), mime=True)
-        if (
-            file_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        ):  # MIME type for .xlsx files
-            messages.error(self.request, "Non-excel file uploaded. Currently, only excel (.xlsx) files are supported.")
-            return redirect(reverse("sample_database:upload-form"))
-        file.seek(0)
-
         lab_name = form.cleaned_data["lab"]
         bmh_project_name = form.cleaned_data["bmh_project"]
         submitter_project_name = form.cleaned_data["submitter_project"]
 
-        df = pd.read_excel(
-            file,
-            converters={
-                "culture_date": self.date_converter,
-                "dna_extraction_date": self.date_converter,
-            },
-        )
+        cleaner_validator = DataCleanerValidator(file, bmh_project_name, submitter_project_name, lab_name)
 
-        df["bmh_project"] = bmh_project_name
-        df["submitter_project"] = submitter_project_name
-        df["submitting_lab"] = lab_name
-
-        model_fields = [f.name for f in Sample._meta.get_fields()]
-        required_columns = [
-            "sample_name",
-            "tube_label",
-            "submitting_lab",
-            "sample_type",
-            "sample_volume_in_ul",
-            "requested_services",
-            "genus",
-            "species",
-        ]
-
-        missing_columns = [col for col in required_columns if col not in df.columns]
-
-        if missing_columns:
-            messages.error(self.request, f'Missing required columns: {", ".join(missing_columns)}')
+        try:
+            cleaner_validator.validate()
+        except ValidationError as e:
+            messages.error(self.request, str(e))
             return redirect(reverse("sample_database:upload-form"))
 
-        n_records = df.shape[0]
-        if n_records == 0:
-            messages.error(self.request, "Empty file uploaded. No samples added.")
-            return redirect(reverse("sample_database:upload-form"))
-
-        # keep only the columns that exist in the Sample model
-        df = df[[col for col in df.columns if col in model_fields]]
+        cleaner_validator.clean()
+        df = cleaner_validator.get_dataframe()
 
         data = df.to_dict(orient="records")
         json_data = json.dumps(data)
