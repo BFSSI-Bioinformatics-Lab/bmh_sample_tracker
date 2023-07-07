@@ -114,3 +114,48 @@ def test_data_full():
         },
     ]
     yield data
+
+
+@pytest.fixture
+def test_excel_full():
+    project = ProjectFactory()
+    lab = LabFactory()
+    data = [
+        {
+            "sample_name": "Sample_1",
+            "tube_label": "Tube1",
+            "submitting_lab": lab.lab_name,
+            "sample_type": "DNA",
+            "sample_volume_in_ul": 25.0,
+            "requested_services": "Sequencing",
+            "genus": "GenusA",
+            "species": "SpeciesA",
+            "submitter_project": "proj1",
+            "bmh_project": project.project_name,
+        },
+        {
+            "sample_name": "Sample_2",
+            "tube_label": "Tube2",
+            "submitting_lab": lab.lab_name,
+            "sample_type": "CELLS",
+            "sample_volume_in_ul": 35.0,
+            "requested_services": "Sequencing",
+            "genus": "GenusB",
+            "species": "SpeciesB",
+            "submitter_project": "proj2",
+            "bmh_project": project.project_name,
+        },
+        {
+            "sample_name": "Sample_3",
+            "tube_label": "Tube3",
+            "submitting_lab": lab.lab_name,
+            "sample_type": "AMPLICON",
+            "sample_volume_in_ul": 45.0,
+            "requested_services": "Sequencing",
+            "genus": "GenusC",
+            "species": "SpeciesC",
+            "submitter_project": "proj3",
+            "bmh_project": project.project_name,
+        },
+    ]
+    yield data
