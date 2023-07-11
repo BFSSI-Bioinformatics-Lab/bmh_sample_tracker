@@ -1,4 +1,3 @@
-import magic
 from django import forms
 
 from api.models import Lab, Project
@@ -30,34 +29,35 @@ class UploadForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        bmh_project = cleaned_data.get("bmh_project")
-        submitter_project = cleaned_data.get("submitter_project")
-        submitting_lab = cleaned_data.get("lab")
 
-        if bmh_project and submitter_project:
-            raise forms.ValidationError("Please select only one of Existing Project and New Project.")
+        if not self.errors:
+            bmh_project = cleaned_data.get("bmh_project")
+            submitter_project = cleaned_data.get("submitter_project")
+            submitting_lab = cleaned_data.get("lab")
 
-        if bmh_project is None and submitter_project is None:
-            raise forms.ValidationError("Both Existing Project and New Project cannot be empty.")
+            if bmh_project and submitter_project:
+                self.add_error(None, "Please select only one of Existing Project and New Project.")
 
-        if bmh_project is not None:
-            if bmh_project.supporting_lab.lab_name != submitting_lab.lab_name:
-                raise forms.ValidationError("Selected project should be associated with the selected lab")
+            if not bmh_project and not submitter_project:
+                self.add_error(None, "Both Existing Project and New Project cannot be empty.")
 
-        file = cleaned_data.get("excel_file")
+            if bmh_project is not None:
+                if bmh_project.supporting_lab.lab_name != submitting_lab.lab_name:
+                    self.add_error(None, "Selected project should be associated with the selected lab")
 
-        if not file:
-            raise forms.ValidationError("Empty file uploaded. Please upload a valid Excel file.")
+            file = cleaned_data.get("excel_file")
 
-        max_file_size_bytes = self.MAX_FILE_SIZE_MB * 1024 * 1024
-        if file.size > max_file_size_bytes:
-            raise forms.ValidationError(f"File size exceeds the maximum limit of {self.MAX_FILE_SIZE_MB} MB.")
+            if not file:
+                self.add_error("excel_file", "Empty file uploaded. Please upload a valid Excel file.")
 
-        file_type = magic.from_buffer(file.read(), mime=True)
-        if (
-            file_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        ):  # MIME type for .xlsx files
-            raise forms.ValidationError("Non-excel file uploaded. Currently, only excel (.xlsx) files are supported.")
-        file.seek(0)
+            max_file_size_bytes = self.MAX_FILE_SIZE_MB * 1024 * 1024
+            if file.size > max_file_size_bytes:
+                self.add_error("excel_file", f"File size exceeds the maximum limit of {self.MAX_FILE_SIZE_MB} MB.")
 
-        return cleaned_data
+            file_type = file.content_type
+            if file_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                self.add_error(
+                    "excel_file", "Non-excel file uploaded. Currently, only excel (.xlsx) files are supported."
+                )
+
+            return cleaned_data
