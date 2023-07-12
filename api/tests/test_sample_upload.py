@@ -32,7 +32,6 @@ def test_sample_upload(client, test_data_full, user_factory):
     request.user = user
     view = SampleUploadView.as_view()
     response = view(request)
-
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data == {"success": True, "message": "Sample uploaded successfully."}
 

@@ -1,14 +1,35 @@
-{% extends 'base.html' %} {% block content %}
-    <h2>Upload Excel File</h2>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <h2>Upload Samples</h2>
+
+    <h3>Instructions</h3>
+<div>
+    <ol>
+    <li>Download the sample sheet Excel template <a href="{% static 'sample_sheet.xlsx' %}">here</a>.</li>
+    <li>Fill out the sample sheet with your data:
+        <ul>
+            <li>Columns in red (<b>sample_name</b>, <b>well</b>, <b>tube_label</b>, <b>sample_type</b>, <b>sample_volume_in_ul</b>, <b>requested_services</b>, <b>genus</b>, <b>species</b>) must be filled out. The others are optional but recommended.</li>
+            <li>The <b>sample_name</b> and <b>requested_services</b> columns have a drop down list that can be selected to populate that field.</li>
+            <li>Note that <b>sample_name</b> can only contain letters, numbers, underscores, and hyphens (no spaces or periods). <b>well</b> must be a letter followed by a two digit number (e.g. E15).</li>
+            <li>Do not edit any of the excel sheet headers, or any other part of the excel sheet, as this will cause an error.</li>
+        </ul>
+    </li>
+    <li>Fill out the form below, selecting your lab and either an existing project <b>or</b> a new project as appropriate (entering both will produce an error).</li>
+    <li>Click the <b>Browse...</b> button and select your filled-out template.</li>
+    <li>Click <b>Upload</b> to submit your data. If there are errors, they will be displayed in red and your data will not be uploaded.</li>
+    <li>It is recommended to check that your sample data were uploaded correctly by checking the <a href="{% url 'sample_database:sample-db' %}">Sample Database</a></li>
+    </ol>
+</div>
+
+    <h3>Upload Form</h3>
+
     <form method="post" enctype="multipart/form-data" action="{% url 'sample_database:upload-form' %}">
         {% csrf_token %}
         <div>
             {{ form.lab.label_tag }} {{ form.lab }}
         </div>
         <br>
-        <div>
-            Select a project from the drop-down below OR enter project name for new projects. You must do one or the other, but not both.
-        </div>
         <div>
             {{ form.bmh_project.label_tag }} {{ form.bmh_project }}
         </div>

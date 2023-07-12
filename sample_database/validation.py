@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from django.core.exceptions import ValidationError
 
@@ -33,12 +34,17 @@ class DataCleanerValidator:
     ]
 
     def __init__(self, file, bmh_project_name, submitter_project_name, lab_name):
-        df = pd.read_excel(
-            file,
-            converters={
-                "culture_date": self._date_converter,
-                "dna_extraction_date": self._date_converter,
-            },
+        df = (
+            pd.read_excel(
+                file,
+                dtype={"approx_genome_size_in_bp": "Int64"},
+                converters={
+                    "culture_date": self._date_converter,
+                    "dna_extraction_date": self._date_converter,
+                },
+            )
+            .fillna(np.nan)
+            .replace([np.nan], [None])
         )
 
         n_records = df.shape[0]
@@ -58,12 +64,14 @@ class DataCleanerValidator:
         self._discard_extra_columns()
         self._strip_whitespace()
         self._convert_sample_type()
+        self._remove_test_data()
 
     def get_dataframe(self):
         final_df = self.df
         final_df["bmh_project"] = self.bmh_project.project_name if self.bmh_project else ""
         final_df["submitter_project"] = self.submitter_project
         final_df["submitting_lab"] = self.submitting_lab.lab_name
+
         return final_df
 
     def _validate_required_columns(self):
@@ -86,19 +94,25 @@ class DataCleanerValidator:
         self.df = df[[col for col in df.columns if col in model_fields]]
 
     def _strip_whitespace(self):
-        string_columns = [col for col in self.df.columns if self.df[col].dtype == "object"]
-        self.df[string_columns] = self.df[string_columns].apply(lambda x: x.str.strip())
+        for col in self.STRING_COLUMNS:
+            self.df[col] = self.df[col].str.strip()
+
+    def _convert_sample_type(self):
+        sample_type_mapping = {value: key for key, value in SAMPLE_TYPE_CHOICES}
+        self.df["sample_type"] = self.df["sample_type"].map(sample_type_mapping)
+
+    def _remove_test_data(self):
+        if "test_donotuse" in self.df["sample_name"].values:
+            df = self.df
+            df = df[df["sample_name"] != "test_donotuse"]
+            self.df = df
 
     def _date_converter(self, date):
         if not date or date is None or date == "null":
-            return ""
+            return None
         if isinstance(date, str) and len(date) == 10:
             return date  # proper validation will be performed by serializer
         try:
             return date.date().isoformat()
         except AttributeError:
             return date
-
-    def _convert_sample_type(self):
-        sample_type_mapping = {value: key for key, value in SAMPLE_TYPE_CHOICES}
-        self.df["sample_type"] = self.df["sample_type"].map(sample_type_mapping)
