@@ -10,9 +10,7 @@
         <th>Date submitted</th>
         <th>Requested services</th>
         <th>Sample Type</th>
-        <th>Latest Workflow Execution</th>
-        <th>Date</th>
-        <th>Status</th>
+        <th>Received</th>
       </tr>
     </thead>
     <tfoot>
@@ -24,9 +22,7 @@
         <th>Date submitted</th>
         <th>Requested services</th>
         <th>Sample Type</th>
-        <th>Latest Workflow Execution</th>
-        <th>Date</th>
-        <th>Status</th>
+        <th>Received</th>
       </tr>
     </tfoot>
   </table>
@@ -63,39 +59,24 @@
         { data: 'sample_name' },
         { data: 'submitting_lab' },
         {
-          data: 'submitter_project',
+          data: null,
           defaultContent: '',
+          render: function (data, type, row) {
+            var bmh_project = row.bmh_project || '';
+            var submitter_project = row.submitter_project || '';
+            var project_display = bmh_project;
+
+            if (submitter_project !== '') {
+                project_display += ' (' + submitter_project + ')';
+            }
+
+            return project_display;
+            }
         },
         { data: 'created' },
         { data: 'requested_services' },
         { data: 'sample_type' },
-        {
-          data: 'latest_workflow_execution.workflow.workflow_name',
-          defaultContent: '',
-        },
-        {
-          data: 'latest_workflow_execution.modified',
-          defaultContent: '',
-        },
-        {
-          data: 'latest_workflow_execution.status',
-          render: function (data, type, row, meta) {
-            if (type === 'display') {
-              var cssClass = '';
-              if (data === 'FAIL') {
-                cssClass = 'bg-danger';
-              } else if (data === 'COMPLETE') {
-                cssClass = 'bg-success';
-              } else if (data === 'IN_PROGRESS') {
-                cssClass = 'bg-warning text-dark';
-              }
-              return '<span class="badge ' + cssClass + '">' + data + '</span>';
-            }
-            return data;
-          },
-          defaultContent: '',
-        },
-
+        { data: 'received' },
       ],
       language: {
         search: 'Search all fields:',

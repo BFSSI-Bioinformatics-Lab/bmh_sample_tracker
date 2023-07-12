@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from .models import (
     LG_CHAR,
+    SAMPLE_TYPE_CHOICES,
     SM_CHAR,
     Aliquot,
     Lab,
@@ -48,14 +49,26 @@ class AliquotSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class SampleTypeField(serializers.Field):
+    def to_representation(self, value):
+        # Convert the database value to the human-readable value for output
+        return dict(SAMPLE_TYPE_CHOICES).get(value, value)
+
+    def to_internal_value(self, data):
+        # Convert the human-readable name to the appropriate database value for input
+        choices_map = {choice[1].lower(): choice[0] for choice in SAMPLE_TYPE_CHOICES}
+        return choices_map.get(data.lower(), data)
+
+
 class SampleSerializer(serializers.ModelSerializer):
     submitting_lab = serializers.SlugRelatedField(slug_field="lab_name", queryset=Lab.objects.all())
     bmh_project = serializers.SlugRelatedField(
         slug_field="project_name", queryset=Project.objects.all(), allow_null=True
     )
+    sample_type = SampleTypeField()
+    well = serializers.CharField(max_length=SM_CHAR, validators=[well_validator])
 
     # allow nulls where appropriate
-    well = serializers.CharField(max_length=SM_CHAR, validators=[well_validator])
     submitter_project = serializers.CharField(max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True)
     strain = serializers.CharField(max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True)
     isolate = serializers.CharField(max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True)

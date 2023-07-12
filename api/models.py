@@ -137,20 +137,6 @@ class Sample(TimeStampedModel):
 
     history = HistoricalRecords()
 
-    def save(self, *args, **kwargs):
-        # Convert the human-readable name to the appropriate database value before saving
-        if self.sample_type:
-            choices_map = {choice[1].lower(): choice[0] for choice in SAMPLE_TYPE_CHOICES}
-            self.sample_type = choices_map.get(self.sample_type.lower(), self.sample_type)
-        super().save(*args, **kwargs)
-
-    def full_clean(self, exclude=None, validate_unique=True, validate_constraints=True):
-        # Convert the human-readable name to the appropriate database value before validation
-        if self.sample_type:
-            choices_map = {choice[1].lower(): choice[0] for choice in SAMPLE_TYPE_CHOICES}
-            self.sample_type = choices_map.get(self.sample_type.lower(), self.sample_type)
-        super().full_clean(exclude=exclude, validate_unique=validate_unique, validate_constraints=validate_constraints)
-
     def __str__(self):
         return f"{self.sample_id}: {self.sample_name}"
 
