@@ -10,6 +10,7 @@
         <th>Date submitted</th>
         <th>Requested services</th>
         <th>Sample Type</th>
+        <th>Received</th>
         <th>Latest Workflow Execution</th>
         <th>Date</th>
         <th>Status</th>
@@ -24,6 +25,7 @@
         <th>Date submitted</th>
         <th>Requested services</th>
         <th>Sample Type</th>
+        <th>Received</th>
         <th>Latest Workflow Execution</th>
         <th>Date</th>
         <th>Status</th>
@@ -63,12 +65,24 @@
         { data: 'sample_name' },
         { data: 'submitting_lab' },
         {
-          data: 'submitter_project',
+          data: null,
           defaultContent: '',
+          render: function (data, type, row) {
+            var bmh_project = row.bmh_project || '';
+            var submitter_project = row.submitter_project || '';
+            var project_display = bmh_project;
+
+            if (submitter_project !== '') {
+                project_display += ' (' + submitter_project + ')';
+            }
+
+            return project_display;
+            }
         },
         { data: 'created' },
         { data: 'requested_services' },
         { data: 'sample_type' },
+        { data: 'received' },
         {
           data: 'latest_workflow_execution.workflow.workflow_name',
           defaultContent: '',
@@ -81,6 +95,9 @@
           data: 'latest_workflow_execution.status',
           render: function (data, type, row, meta) {
             if (type === 'display') {
+              if (data === '' || data === undefined){
+                return '';
+              }
               var cssClass = '';
               if (data === 'FAIL') {
                 cssClass = 'bg-danger';
