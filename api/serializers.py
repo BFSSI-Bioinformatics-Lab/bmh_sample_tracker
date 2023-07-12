@@ -1,6 +1,17 @@
 from rest_framework import serializers
 
-from .models import Aliquot, Lab, Project, Sample, Workflow, WorkflowExecution, generate_sample_id
+from .models import (
+    LG_CHAR,
+    SM_CHAR,
+    Aliquot,
+    Lab,
+    Project,
+    Sample,
+    Workflow,
+    WorkflowExecution,
+    generate_sample_id,
+    well_validator,
+)
 
 
 class LabSerializer(serializers.ModelSerializer):
@@ -43,8 +54,23 @@ class SampleSerializer(serializers.ModelSerializer):
         slug_field="project_name", queryset=Project.objects.all(), allow_null=True
     )
 
-    culture_date = serializers.DateField(allow_null=True, required=False)
-    dna_extraction_date = serializers.DateField(allow_null=True, required=False)
+    # allow nulls where appropriate
+    well = serializers.CharField(max_length=SM_CHAR, allow_blank=True, allow_null=True, validators=[well_validator])
+    submitter_project = serializers.CharField(max_length=SM_CHAR, allow_null=True, allow_blank=True)
+    strain = serializers.CharField(max_length=SM_CHAR, allow_null=True, allow_blank=True)
+    isolate = serializers.CharField(max_length=SM_CHAR, allow_null=True, allow_blank=True)
+    subspecies_subtype_lineage = serializers.CharField(max_length=LG_CHAR, allow_null=True, allow_blank=True)
+    approx_genome_size_in_bp = serializers.IntegerField(allow_null=True)
+    comments = serializers.CharField(allow_blank=True, allow_null=True, style={"base_template": "textarea.html"})
+    culture_date = serializers.DateField(allow_null=True)
+    culture_conditions = serializers.CharField(
+        allow_blank=True, allow_null=True, style={"base_template": "textarea.html"}
+    )
+    dna_extraction_date = serializers.DateField(allow_null=True)
+    dna_extraction_method = serializers.CharField(
+        allow_blank=True, allow_null=True, style={"base_template": "textarea.html"}
+    )
+    qubit_concentration_in_ng_ul = serializers.FloatField(allow_null=True)
 
     latest_workflow_execution = serializers.SerializerMethodField()
 
