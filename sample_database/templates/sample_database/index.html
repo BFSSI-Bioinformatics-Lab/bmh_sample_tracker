@@ -11,9 +11,6 @@
         <th>Requested services</th>
         <th>Sample Type</th>
         <th>Received</th>
-        <th>Latest Workflow Execution</th>
-        <th>Date</th>
-        <th>Status</th>
       </tr>
     </thead>
     <tfoot>
@@ -26,9 +23,6 @@
         <th>Requested services</th>
         <th>Sample Type</th>
         <th>Received</th>
-        <th>Latest Workflow Execution</th>
-        <th>Date</th>
-        <th>Status</th>
       </tr>
     </tfoot>
   </table>
@@ -83,36 +77,6 @@
         { data: 'requested_services' },
         { data: 'sample_type' },
         { data: 'received' },
-        {
-          data: 'latest_workflow_execution.workflow.workflow_name',
-          defaultContent: '',
-        },
-        {
-          data: 'latest_workflow_execution.modified',
-          defaultContent: '',
-        },
-        {
-          data: 'latest_workflow_execution.status',
-          render: function (data, type, row, meta) {
-            if (type === 'display') {
-              if (data === '' || data === undefined){
-                return '';
-              }
-              var cssClass = '';
-              if (data === 'FAIL') {
-                cssClass = 'bg-danger';
-              } else if (data === 'COMPLETE') {
-                cssClass = 'bg-success';
-              } else if (data === 'IN_PROGRESS') {
-                cssClass = 'bg-warning text-dark';
-              }
-              return '<span class="badge ' + cssClass + '">' + data + '</span>';
-            }
-            return data;
-          },
-          defaultContent: '',
-        },
-
       ],
       language: {
         search: 'Search all fields:',
