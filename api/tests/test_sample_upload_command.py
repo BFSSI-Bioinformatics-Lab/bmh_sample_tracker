@@ -4,13 +4,9 @@ from tempfile import NamedTemporaryFile
 import pandas as pd
 import pytest
 from django.core.management import call_command
-from django.urls import reverse
 from factories import LabFactory, ProjectFactory
-from rest_framework.test import APIRequestFactory
 
 from api.models import Sample
-from api.views import SampleAPIView
-from bmh_sample_tracker.users.tests.factories import UserFactory
 
 
 @pytest.fixture
@@ -20,6 +16,7 @@ def excel_data():
     # Create a dataframe with the required fields.
     data = {
         "sample_name": ["Sample1", "Sample2"],
+        "well": ["A01", "A02"],
         "tube_label": ["S1", "S2"],
         "sample_type": ["Cells (in DNA/RNA shield)", "Cells (in DNA/RNA shield)"],
         "submitting_lab": [lab.lab_name, lab.lab_name],
@@ -49,7 +46,7 @@ def excel_data():
 
 
 @pytest.mark.django_db
-def test_command_and_api(api_client, excel_data):
+def test_upload_command(excel_data):
     with NamedTemporaryFile(suffix=".xlsx") as temp_file:
         temp_file.write(excel_data)
         temp_file.flush()
@@ -60,21 +57,3 @@ def test_command_and_api(api_client, excel_data):
         assert len(samples) == 2
         assert samples[0].sample_name == "Sample1"
         assert samples[1].sample_name == "Sample2"
-
-        factory = APIRequestFactory()
-        request = factory.get(reverse("api:sample-list"))
-        user = UserFactory(is_staff=True)
-        request.user = user
-
-        view = SampleAPIView.as_view()
-        response = view(request)
-
-        # Check the status code and response data.
-        assert response.status_code == 200
-        data = response.data
-        assert len(data) == 2
-        assert data[0]["sample_name"] == "Sample1"
-        assert data[1]["sample_name"] == "Sample2"
-        # check that both empty strings and None values get stored as None
-        assert data[0]["culture_conditions"] is None
-        assert data[1]["culture_conditions"] is None

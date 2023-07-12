@@ -55,22 +55,26 @@ class SampleSerializer(serializers.ModelSerializer):
     )
 
     # allow nulls where appropriate
-    well = serializers.CharField(max_length=SM_CHAR, allow_blank=True, allow_null=True, validators=[well_validator])
-    submitter_project = serializers.CharField(max_length=SM_CHAR, allow_null=True, allow_blank=True)
-    strain = serializers.CharField(max_length=SM_CHAR, allow_null=True, allow_blank=True)
-    isolate = serializers.CharField(max_length=SM_CHAR, allow_null=True, allow_blank=True)
-    subspecies_subtype_lineage = serializers.CharField(max_length=LG_CHAR, allow_null=True, allow_blank=True)
-    approx_genome_size_in_bp = serializers.IntegerField(allow_null=True)
-    comments = serializers.CharField(allow_blank=True, allow_null=True, style={"base_template": "textarea.html"})
-    culture_date = serializers.DateField(allow_null=True)
+    well = serializers.CharField(max_length=SM_CHAR, validators=[well_validator])
+    submitter_project = serializers.CharField(max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True)
+    strain = serializers.CharField(max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True)
+    isolate = serializers.CharField(max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True)
+    subspecies_subtype_lineage = serializers.CharField(
+        max_length=LG_CHAR, required=False, allow_null=True, allow_blank=True
+    )
+    approx_genome_size_in_bp = serializers.IntegerField(required=False, allow_null=True)
+    comments = serializers.CharField(
+        allow_blank=True, required=False, allow_null=True, style={"base_template": "textarea.html"}
+    )
+    culture_date = serializers.DateField(required=False, allow_null=True)
     culture_conditions = serializers.CharField(
-        allow_blank=True, allow_null=True, style={"base_template": "textarea.html"}
+        required=False, allow_blank=True, allow_null=True, style={"base_template": "textarea.html"}
     )
-    dna_extraction_date = serializers.DateField(allow_null=True)
+    dna_extraction_date = serializers.DateField(required=False, allow_null=True)
     dna_extraction_method = serializers.CharField(
-        allow_blank=True, allow_null=True, style={"base_template": "textarea.html"}
+        required=False, allow_blank=True, allow_null=True, style={"base_template": "textarea.html"}
     )
-    qubit_concentration_in_ng_ul = serializers.FloatField(allow_null=True)
+    qubit_concentration_in_ng_ul = serializers.FloatField(required=False, allow_null=True)
 
     latest_workflow_execution = serializers.SerializerMethodField()
 
