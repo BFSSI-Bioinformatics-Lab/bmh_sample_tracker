@@ -14,7 +14,7 @@ SECRET_KEY = env(
     default="Zs5f5CoZXPnPhaBH4XtzJ2WjQv4kiy18bKOsNMTBO6qhAZbP10CjVQzMHjEvA28L",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS", default=["localhost", "0.0.0.0", "127.0.0.1"])
+ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS", default=["localhost", "0.0.0.0", "127.0.0.1", "microstream.scdc-bio.ca"])
 
 # CACHES
 # ------------------------------------------------------------------------------
