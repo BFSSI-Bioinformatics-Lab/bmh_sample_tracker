@@ -66,9 +66,11 @@ class SampleSerializer(serializers.ModelSerializer):
         slug_field="project_name", queryset=Project.objects.all(), allow_null=True
     )
     sample_type = SampleTypeField()
-    well = serializers.CharField(max_length=SM_CHAR, validators=[well_validator])
 
     # allow nulls where appropriate
+    well = serializers.CharField(
+        max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True, validators=[well_validator]
+    )
     submitter_project = serializers.CharField(max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True)
     strain = serializers.CharField(max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True)
     isolate = serializers.CharField(max_length=SM_CHAR, required=False, allow_null=True, allow_blank=True)

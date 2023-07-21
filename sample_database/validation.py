@@ -1,5 +1,3 @@
-import numpy as np
-import pandas as pd
 from django.core.exceptions import ValidationError
 
 from api.models import SAMPLE_TYPE_CHOICES, Sample
@@ -8,7 +6,6 @@ from api.models import SAMPLE_TYPE_CHOICES, Sample
 class DataCleanerValidator:
     REQUIRED_COLUMNS = [
         "sample_name",
-        "tube_label",
         "sample_type",
         "sample_volume_in_ul",
         "requested_services",
@@ -19,6 +16,7 @@ class DataCleanerValidator:
     STRING_COLUMNS = [
         "sample_name",
         "tube_label",
+        "well",
         "sample_type",
         "requested_services",
         "genus",
@@ -33,20 +31,7 @@ class DataCleanerValidator:
         "dna_extraction_method",
     ]
 
-    def __init__(self, file, bmh_project_name, submitter_project_name, lab_name):
-        df = (
-            pd.read_excel(
-                file,
-                dtype={"approx_genome_size_in_bp": "Int64"},
-                converters={
-                    "culture_date": self._date_converter,
-                    "dna_extraction_date": self._date_converter,
-                },
-            )
-            .fillna(np.nan)
-            .replace([np.nan], [None])
-        )
-
+    def __init__(self, df, bmh_project_name, submitter_project_name, lab_name):
         n_records = df.shape[0]
         if n_records == 0:
             raise ValidationError("Empty file uploaded. No samples added.")
@@ -58,10 +43,11 @@ class DataCleanerValidator:
 
     def validate(self):
         self._validate_required_columns()
+        self._validate_tube_well()
         self._validate_data_types()
+        self._no_extra_columns()
 
     def clean(self):
-        self._discard_extra_columns()
         self._strip_whitespace()
         self._convert_sample_type()
         self._remove_test_data()
@@ -79,11 +65,15 @@ class DataCleanerValidator:
         if missing_columns:
             raise ValidationError(f'Missing required columns: {", ".join(missing_columns)}')
 
+    def _validate_tube_well(self):
+        if self.df[["tube_label", "well"]].isnull().all(axis=1).any():
+            raise ValidationError("Each row must have either 'tube_label' or 'well' populated.")
+
     def _validate_data_types(self):
         # right now this is done at the model level only
         pass
 
-    def _discard_extra_columns(self):
+    def _no_extra_columns(self):
         df = self.df
         model_fields = [f.name for f in Sample._meta.get_fields()]
         extra_columns = [col for col in df.columns if col not in model_fields]
@@ -91,11 +81,10 @@ class DataCleanerValidator:
         if extra_columns:
             raise ValidationError(f"Extra columns in data: {extra_columns}")
 
-        self.df = df[[col for col in df.columns if col in model_fields]]
-
     def _strip_whitespace(self):
         for col in self.STRING_COLUMNS:
-            self.df[col] = self.df[col].str.strip()
+            if col in self.df:
+                self.df[col] = self.df[col].str.strip()
 
     def _convert_sample_type(self):
         sample_type_mapping = {value: key for key, value in SAMPLE_TYPE_CHOICES}
@@ -106,13 +95,3 @@ class DataCleanerValidator:
             df = self.df
             df = df[df["sample_name"] != "test_donotuse"]
             self.df = df
-
-    def _date_converter(self, date):
-        if not date or date is None or date == "null":
-            return None
-        if isinstance(date, str) and len(date) == 10:
-            return date  # proper validation will be performed by serializer
-        try:
-            return date.date().isoformat()
-        except AttributeError:
-            return date

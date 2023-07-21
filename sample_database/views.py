@@ -1,5 +1,7 @@
 import json
 
+import numpy as np
+import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
@@ -67,7 +69,20 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
         bmh_project_name = form.cleaned_data["bmh_project"]
         submitter_project_name = form.cleaned_data["submitter_project"]
 
-        cleaner_validator = DataCleanerValidator(file, bmh_project_name, submitter_project_name, lab_name)
+        df = (
+            pd.read_excel(
+                file,
+                dtype={"approx_genome_size_in_bp": "Int64"},
+                converters={
+                    "culture_date": self._date_converter,
+                    "dna_extraction_date": self._date_converter,
+                },
+            )
+            .fillna(np.nan)
+            .replace([np.nan], [None])
+        )
+
+        cleaner_validator = DataCleanerValidator(df, bmh_project_name, submitter_project_name, lab_name)
 
         try:
             cleaner_validator.validate()
@@ -114,3 +129,13 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
 
         # Redirect the user back to the form
         return redirect(reverse("sample_database:upload-form"))
+
+    def _date_converter(self, date):
+        if not date or date is None or date == "null":
+            return None
+        if isinstance(date, str) and len(date) == 10:
+            return date  # proper validation will be performed by serializer
+        try:
+            return date.date().isoformat()
+        except AttributeError:
+            return date

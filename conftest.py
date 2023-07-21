@@ -78,7 +78,6 @@ def test_data_full():
     data = [
         {
             "sample_name": "Sample_1",
-            "well": "A01",
             "tube_label": "Tube1",
             "submitting_lab": lab.lab_name,
             "sample_type": "DNA",
@@ -91,7 +90,6 @@ def test_data_full():
         },
         {
             "sample_name": "Sample_2",
-            "well": "A02",
             "tube_label": "Tube2",
             "submitting_lab": lab.lab_name,
             "sample_type": "CELLS",
@@ -104,7 +102,6 @@ def test_data_full():
         },
         {
             "sample_name": "Sample_3",
-            "well": "A03",
             "tube_label": "Tube3",
             "submitting_lab": lab.lab_name,
             "sample_type": "AMPLICON",
