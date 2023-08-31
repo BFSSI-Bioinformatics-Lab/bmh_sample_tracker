@@ -10,7 +10,7 @@ from bmh_sample_tracker.users.models import User
 # Sensible field sizes for CharField columns
 LG_CHAR = 250
 SM_CHAR = 50
-MIN_CHAR = 3
+MIN_CHAR = 1
 
 SAMPLE_TYPE_CHOICES = [
     ("CELLS", "Cells (in DNA/RNA shield)"),
