@@ -84,7 +84,7 @@ class DataCleanerValidator:
     def _strip_whitespace(self):
         for col in self.STRING_COLUMNS:
             if col in self.df:
-                self.df[col] = self.df[col].str.strip()
+                self.df[col] = self.df[col].astype(str).str.strip()
 
     def _convert_sample_type(self):
         sample_type_mapping = {value: key for key, value in SAMPLE_TYPE_CHOICES}
