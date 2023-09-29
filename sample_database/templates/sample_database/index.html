@@ -5,8 +5,11 @@
       <tr>
         <th>Sample ID</th>
         <th>Sample Name</th>
+        <th>Tube/Plate Label</th>
+        <th>Well</th>
         <th>Submitting Lab</th>
         <th>Project</th>
+        <th>Genus/species</th>
         <th>Date submitted</th>
         <th>Requested services</th>
       </tr>
@@ -15,8 +18,11 @@
       <tr>
         <th>Sample ID</th>
         <th>Sample Name</th>
+        <th>Tube/Plate Label</th>
+        <th>Well</th>
         <th>Submitting Lab</th>
         <th>Project</th>
+        <th>Genus/species</th>
         <th>Date submitted</th>
         <th>Requested services</th>
       </tr>
@@ -53,6 +59,8 @@
           },
         },
         { data: 'sample_name' },
+        { data: 'tube_plate_label' },
+        { data: 'well' },
         { data: 'submitting_lab' },
         {
           data: null,
@@ -68,6 +76,16 @@
 
             return project_display;
             }
+        },
+        {
+          data: null,
+          defaultContent: '',
+          render: function (data, type, row) {
+            var genus = row.genus || '';
+            var species = row.species || '';
+            var result = genus + ' ' + species;
+            return result;
+          }
         },
         { data: 'created' },
         { data: 'requested_services' },
