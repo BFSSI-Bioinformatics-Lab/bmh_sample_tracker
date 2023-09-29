@@ -17,7 +17,7 @@ def excel_data():
     data = {
         "sample_name": ["Sample1", "Sample2"],
         "well": ["A01", "A02"],
-        "tube_label": ["S1", "S2"],
+        "tube_plate_label": ["S1", "S2"],
         "sample_type": ["Cells (in DNA/RNA shield)", "Cells (in DNA/RNA shield)"],
         "submitting_lab": [lab.lab_name, lab.lab_name],
         "sample_volume_in_ul": [10, 20],

@@ -7,6 +7,7 @@ class DataCleanerValidator:
     REQUIRED_COLUMNS = [
         "sample_name",
         "sample_type",
+        "tube_plate_label",
         "sample_volume_in_ul",
         "requested_services",
         "genus",
@@ -15,7 +16,6 @@ class DataCleanerValidator:
 
     STRING_COLUMNS = [
         "sample_name",
-        "tube_label",
         "well",
         "sample_type",
         "requested_services",
@@ -64,10 +64,6 @@ class DataCleanerValidator:
         missing_columns = [col for col in self.REQUIRED_COLUMNS if col not in self.df.columns]
         if missing_columns:
             raise ValidationError(f'Missing required columns: {", ".join(missing_columns)}')
-
-    def _validate_tube_well(self):
-        if self.df[["tube_label", "well"]].isnull().all(axis=1).any():
-            raise ValidationError("Each row must have either 'tube_label' or 'well' populated.")
 
     def _validate_data_types(self):
         # right now this is done at the model level only
