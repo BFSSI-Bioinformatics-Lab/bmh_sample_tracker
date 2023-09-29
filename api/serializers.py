@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from .models import (
@@ -57,7 +58,11 @@ class SampleTypeField(serializers.Field):
     def to_internal_value(self, data):
         # Convert the human-readable name to the appropriate database value for input
         choices_map = {choice[1].lower(): choice[0] for choice in SAMPLE_TYPE_CHOICES}
-        return choices_map.get(data.lower(), data)
+        try:
+            result = choices_map.get(data.lower(), data)
+        except AttributeError:
+            raise ValidationError("Sample type should match one of the pre-defined choices.")
+        return result
 
 
 class SampleSerializer(serializers.ModelSerializer):
