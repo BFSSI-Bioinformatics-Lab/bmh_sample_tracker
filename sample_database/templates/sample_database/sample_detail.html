@@ -33,6 +33,9 @@
           <dt class="col-sm-3">Tube/Plate Label</dt>
           <dd class="col-sm-9">{{ sample.tube_plate_label }}</dd>
 
+          <dt class="col-sm-3">Well</dt>
+          <dd class="col-sm-9">{{ sample.well|default_if_none:'' }}</dd>
+
           <hr />
 
           <dt class="col-sm-3">Genus</dt>
