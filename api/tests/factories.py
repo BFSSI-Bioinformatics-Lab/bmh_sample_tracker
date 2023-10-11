@@ -37,7 +37,7 @@ class ProjectFactory(DjangoModelFactory):
 class SampleFactory(DjangoModelFactory):
     sample_id = Faker("uuid4")
     sample_name = Faker("user_name")
-    tube_label = Faker("bothify", text="Tube-##??", letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    tube_plate_label = Faker("bothify", text="Tube-##??", letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     submitting_lab = SubFactory(LabFactory)
     sample_type = Faker("random_element", elements=[choice[0] for choice in SAMPLE_TYPE_CHOICES])
     sample_volume_in_ul = Faker("pyfloat", positive=True)

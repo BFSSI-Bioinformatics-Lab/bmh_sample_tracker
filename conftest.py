@@ -78,7 +78,7 @@ def test_data_full():
     data = [
         {
             "sample_name": "Sample_1",
-            "tube_label": "Tube1",
+            "tube_plate_label": "Tube1",
             "submitting_lab": lab.lab_name,
             "sample_type": "DNA",
             "sample_volume_in_ul": 25.0,
@@ -90,7 +90,7 @@ def test_data_full():
         },
         {
             "sample_name": "Sample_2",
-            "tube_label": "Tube2",
+            "tube_plate_label": "Tube2",
             "submitting_lab": lab.lab_name,
             "sample_type": "CELLS",
             "sample_volume_in_ul": 35.0,
@@ -102,7 +102,7 @@ def test_data_full():
         },
         {
             "sample_name": "Sample_3",
-            "tube_label": "Tube3",
+            "tube_plate_label": "Tube3",
             "submitting_lab": lab.lab_name,
             "sample_type": "AMPLICON",
             "sample_volume_in_ul": 45.0,
@@ -123,7 +123,7 @@ def test_excel_full():
     data = [
         {
             "sample_name": "Sample_1",
-            "tube_label": "Tube1",
+            "tube_plate_label": "Tube1",
             "submitting_lab": lab.lab_name,
             "sample_type": "DNA",
             "sample_volume_in_ul": 25.0,
@@ -135,7 +135,7 @@ def test_excel_full():
         },
         {
             "sample_name": "Sample_2",
-            "tube_label": "Tube2",
+            "tube_plate_label": "Tube2",
             "submitting_lab": lab.lab_name,
             "sample_type": "CELLS",
             "sample_volume_in_ul": 35.0,
@@ -147,7 +147,7 @@ def test_excel_full():
         },
         {
             "sample_name": "Sample_3",
-            "tube_label": "Tube3",
+            "tube_plate_label": "Tube3",
             "submitting_lab": lab.lab_name,
             "sample_type": "AMPLICON",
             "sample_volume_in_ul": 45.0,

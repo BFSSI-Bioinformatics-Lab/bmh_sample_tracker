@@ -5,24 +5,26 @@
       <tr>
         <th>Sample ID</th>
         <th>Sample Name</th>
+        <th>Tube/Plate Label</th>
+        <th>Well</th>
         <th>Submitting Lab</th>
         <th>Project</th>
+        <th>Genus/species</th>
         <th>Date submitted</th>
         <th>Requested services</th>
-        <th>Sample Type</th>
-        <th>Received</th>
       </tr>
     </thead>
     <tfoot>
       <tr>
         <th>Sample ID</th>
         <th>Sample Name</th>
+        <th>Tube/Plate Label</th>
+        <th>Well</th>
         <th>Submitting Lab</th>
         <th>Project</th>
+        <th>Genus/species</th>
         <th>Date submitted</th>
         <th>Requested services</th>
-        <th>Sample Type</th>
-        <th>Received</th>
       </tr>
     </tfoot>
   </table>
@@ -57,6 +59,8 @@
           },
         },
         { data: 'sample_name' },
+        { data: 'tube_plate_label' },
+        { data: 'well' },
         { data: 'submitting_lab' },
         {
           data: null,
@@ -73,10 +77,18 @@
             return project_display;
             }
         },
+        {
+          data: null,
+          defaultContent: '',
+          render: function (data, type, row) {
+            var genus = row.genus || '';
+            var species = row.species || '';
+            var result = genus + ' ' + species;
+            return result;
+          }
+        },
         { data: 'created' },
         { data: 'requested_services' },
-        { data: 'sample_type' },
-        { data: 'received' },
       ],
       language: {
         search: 'Search all fields:',
@@ -84,6 +96,16 @@
       dom: '<lf<t>ipB>',
       buttons: [
         'copy', 'csv', 'print'
+      ],
+      columnDefs: [
+        {
+            targets: [3],
+            visible: false,
+            searchable: false,
+            exportOptions: {
+                columns: ':visible'
+            }
+        }
       ],
       initComplete: function () {
         // Apply the search

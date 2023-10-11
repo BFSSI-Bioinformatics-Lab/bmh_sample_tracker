@@ -111,7 +111,7 @@ class Sample(TimeStampedModel):
     sample_name = models.CharField(
         max_length=SM_CHAR, validators=[min_length_validator, alphanumeric_underscore_hyphen_validator]
     )
-    tube_label = models.CharField(max_length=SM_CHAR)
+    tube_plate_label = models.CharField(max_length=SM_CHAR)  # OR PLATE NAME FOR PLATES
     submitting_lab = models.ForeignKey(Lab, on_delete=models.CASCADE)
     sample_type = models.CharField(max_length=SM_CHAR, choices=SAMPLE_TYPE_CHOICES)
     sample_volume_in_ul = models.FloatField()
