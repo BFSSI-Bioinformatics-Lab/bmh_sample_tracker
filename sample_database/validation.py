@@ -43,7 +43,6 @@ class DataCleanerValidator:
 
     def validate(self):
         self._validate_required_columns()
-        self._validate_tube_well()
         self._validate_data_types()
         self._no_extra_columns()
 
