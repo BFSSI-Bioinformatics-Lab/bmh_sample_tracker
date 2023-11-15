@@ -79,7 +79,13 @@ class DataCleanerValidator:
     def _strip_whitespace(self):
         for col in self.STRING_COLUMNS:
             if col in self.df:
-                self.df[col] = self.df[col].astype(str).str.strip()
+                processed_values = []
+                for item in self.df[col]:
+                    if item is not None and str(item).strip() != "":
+                        processed_values.append(str(item).strip())
+                    else:
+                        processed_values.append(item)
+                self.df[col] = processed_values
 
     def _convert_sample_type(self):
         sample_type_mapping = {value: key for key, value in SAMPLE_TYPE_CHOICES}

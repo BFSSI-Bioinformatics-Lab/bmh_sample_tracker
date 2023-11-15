@@ -19,11 +19,7 @@ SAMPLE_TYPE_CHOICES = [
     ("OTHER", "Other"),
 ]
 
-well_regex = r"^[A-Z]\d{2}$"
-well_validator = RegexValidator(
-    regex=well_regex,
-    message="Well should be a capital letter followed by a two-digit number (e.g., A01, B02, etc.)",
-)
+
 alphanumeric_underscore_hyphen_regex = r"^[a-zA-Z0-9_-]+$"
 alphanumeric_underscore_hyphen_validator = RegexValidator(
     regex=alphanumeric_underscore_hyphen_regex,
@@ -33,6 +29,17 @@ alphabetic_regex = r"^[a-zA-Z]+$"
 alphabetic_validator = RegexValidator(
     regex=alphabetic_regex, message="Field should only contain alphabetic characters"
 )
+
+
+def well_validator(value):
+    if value is None or value == "":
+        return
+    well_regex = r"^[A-Z]\d{2}$"
+    validator = RegexValidator(
+        regex=well_regex,
+        message=f"Well should be a capital letter followed by a two-digit number (e.g., A01, B02, etc.) You provided: {value}",  # noqa: E501
+    )
+    validator(value)
 
 
 def min_length_validator(value):
