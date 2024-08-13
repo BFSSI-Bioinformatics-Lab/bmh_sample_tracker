@@ -15,8 +15,10 @@ MIN_CHAR = 1
 SAMPLE_TYPE_CHOICES = [
     ("CELLS", "Cells (in DNA/RNA shield)"),
     ("DNA", "DNA"),
-    ("AMPLICON", "Amplicon"),
-    ("OTHER", "Other"),
+    ("RNA", "RNA"),
+    ("AMPLICON", "Amplicon - details in comments"),
+    ("PREPARED_LIBRARY", "Prepared Library - details in comments"),
+    ("OTHER", "Other - details in comments"),
 ]
 
 
