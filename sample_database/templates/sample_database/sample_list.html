@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="table-responsive">
+  <table id="sample-table" class="table table-striped table-bordered">
+    <thead class="thead-light">
+      <tr>
+        <th>Sample ID</th>
+        <th>Sample Name</th>
+        <th>Tube/Plate Label</th>
+        <th>Well</th>
+        <th>Submitting Lab</th>
+        <th>Project</th>
+        <th>Genus/Species</th>
+        <th>Date Submitted</th>
+        <th>Requested Services</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sample in samples %}
+      <tr>
+        <td>{{ sample.sample_id }}</td>
+        <td>{{ sample.sample_name }}</td>
+        <td>{{ sample.tube_plate_label }}</td>
+        <td>{{ sample.well|default_if_none:"" }}</td>
+        <td>{{ sample.submitting_lab.lab_name }}</td>
+        <td>{{ sample.bmh_project.project_name|default_if_none:"" }}</td>
+        <td>{{ sample.genus }}/{{ sample.species }}</td>
+        <td>{{ sample.created|date:"Y-m-d" }}</td>
+        <td>{{ sample.requested_services }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th><input type="text" placeholder="Search Sample ID"></th>
+        <th><input type="text" placeholder="Search Sample Name"></th>
+        <th><input type="text" placeholder="Search Tube/Plate Label"></th>
+        <th><input type="text" placeholder="Search Well"></th>
+        <th><input type="text" placeholder="Search Submitting Lab"></th>
+        <th><input type="text" placeholder="Search Project"></th>
+        <th><input type="text" placeholder="Search Genus/Species"></th>
+        <th><input type="text" placeholder="Search Date Submitted"></th>
+        <th><input type="text" placeholder="Search Requested Services"></th>
+      </tr>
+    </tfoot>
+  </table>
+  <button id="downloadBtn" class="btn btn-primary mt-3">Download Filtered Data</button>
+</div>
+
+<script>
+$(document).ready(function() {
+  var table = $('#sample-table').DataTable({
+    order: [[0, 'desc']],
+    lengthMenu: [
+      [10, 50, 100, -1],
+      [10, 50, 100, 'All'],
+    ],
+    initComplete: function () {
+      this.api().columns().every(function () {
+        var column = this;
+        $('input', this.footer()).on('keyup change', function () {
+          if (column.search() !== this.value) {
+            column.search(this.value).draw();
+          }
+        });
+      });
+    }
+  });
+
+  $('#downloadBtn').on('click', function() {
+    var filters = getFilters(table);
+    var url = "{% url 'api:sample-list' %}?format=csv&" + $.param(filters);
+    window.location.href = url;
+  });
+
+  function getFilters(table) {
+    var filters = {};
+    table.columns().every(function(index) {
+      var columnSearch = this.search();
+      if (columnSearch) {
+        filters['column' + index] = columnSearch;
+      }
+    });
+    return filters;
+  }
+});
+</script>
+{% endblock %}

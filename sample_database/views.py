@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
@@ -21,9 +21,17 @@ from .validation import DataCleanerValidator
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
-class SampleListView(LoginRequiredMixin, TemplateView):
-    template_name = "sample_database/index.html"
-    login_url = "/accounts/login/"
+class SampleListView(ListView):
+    model = Sample
+    template_name = 'sample_database/sample_list.html'
+    context_object_name = 'samples'
+
+    def get_queryset(self):
+        if self.request.user.is_superuser or self.request.user.is_staff:
+            return Sample.objects.all()
+        else:
+            user_labs = self.request.user.groups.all().values_list("id", flat=True)
+            return Sample.objects.filter(submitting_lab__in=user_labs)
 
 
 class SampleDetailView(LoginRequiredMixin, DetailView):
