@@ -2,14 +2,16 @@ import json
 
 import numpy as np
 import pandas as pd
+import requests
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.generic import TemplateView, ListView
+from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 
@@ -23,8 +25,8 @@ from .validation import DataCleanerValidator
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class SampleListView(ListView):
     model = Sample
-    template_name = 'sample_database/sample_list.html'
-    context_object_name = 'samples'
+    template_name = "sample_database/sample_list.html"
+    context_object_name = "samples"
 
     def get_queryset(self):
         if self.request.user.is_superuser or self.request.user.is_staff:
@@ -110,6 +112,15 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
         # Handle the API response based on the status code
         if response.status_code == 201:
             messages.success(self.request, "Data uploaded successfully.")
+            slack_message = {
+                "text": f"New sample data uploaded by {self.request.user.get_username()}."
+            }
+            try:
+                requests.post(settings.SLACK_WEBHOOK_URL, json=slack_message)
+            except requests.RequestException as e:
+                # Log the error, but don't disrupt the user experience
+                print(f"Failed to send Slack notification: {e}")
+
             return redirect(reverse("sample_database:sample-db"))
         elif response.status_code == 400:
             errors = response.data["errors"]
