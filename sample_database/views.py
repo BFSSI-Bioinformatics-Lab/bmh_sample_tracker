@@ -119,12 +119,22 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
                 "text": f"New sample data uploaded by {self.request.user.get_username()}."
             }
             try:
-                requests.post(settings.SLACK_WEBHOOK_URL, json=slack_message)
-                print(f"Atttepting to send Slack notification: '{slack_message}'")
-            except requests.RequestException as e:
-                # Log the error, but don't disrupt the user experience
-                print(f"Failed to send Slack notification: {e}")
+                slack_response = requests.post(settings.SLACK_WEBHOOK_URL, json=slack_message, timeout=10)
+                
+                # Log the response details
+                print(f"Slack API Response Status Code: {slack_response.status_code}")
+                print(f"Slack API Response Content: {slack_response.text}")
 
+                # Check if the response indicates success
+                if slack_response.status_code != 200:
+                    print(f"Slack API returned non-200 status code: {slack_response.status_code}")
+                    print(f"Response content: {slack_response.text}")
+
+            except requests.RequestException as e:
+                print(f"Failed to send Slack notification: {e}")
+            except Exception as e:
+                print(f"Unexpected error when sending Slack notification: {e}")
+                
             return redirect(reverse("sample_database:sample-db"))
         elif response.status_code == 400:
             errors = response.data["errors"]
