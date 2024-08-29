@@ -22,6 +22,9 @@ from .forms import UploadForm
 from .validation import DataCleanerValidator
 
 
+def sample_management_view(request):
+    return render(request, "sample_database/sample_management.html")
+
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class SampleListView(ListView):
     model = Sample
@@ -117,6 +120,7 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
             }
             try:
                 requests.post(settings.SLACK_WEBHOOK_URL, json=slack_message)
+                print(f"Atttepting to send Slack notification: '{slack_message}'")
             except requests.RequestException as e:
                 # Log the error, but don't disrupt the user experience
                 print(f"Failed to send Slack notification: {e}")
