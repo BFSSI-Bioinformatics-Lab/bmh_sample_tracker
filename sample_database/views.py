@@ -25,8 +25,9 @@ from .validation import DataCleanerValidator
 def sample_management_view(request):
     return render(request, "sample_database/sample_management.html")
 
+
 @method_decorator(ensure_csrf_cookie, name="dispatch")
-class SampleListView(ListView):
+class SampleListView(LoginRequiredMixin, ListView):
     model = Sample
     template_name = "sample_database/sample_list.html"
     context_object_name = "samples"
@@ -115,12 +116,10 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
         # Handle the API response based on the status code
         if response.status_code == 201:
             messages.success(self.request, "Data uploaded successfully.")
-            slack_message = {
-                "text": f"New sample data uploaded by {self.request.user.get_username()}."
-            }
+            slack_message = {"text": f"New sample data uploaded by {self.request.user.get_username()}."}
             try:
                 slack_response = requests.post(settings.SLACK_WEBHOOK_URL, json=slack_message, timeout=10)
-                
+
                 # Log the response details
                 print(f"Slack API Response Status Code: {slack_response.status_code}")
                 print(f"Slack API Response Content: {slack_response.text}")
@@ -134,7 +133,7 @@ class SampleUploadFormView(LoginRequiredMixin, FormView):
                 print(f"Failed to send Slack notification: {e}")
             except Exception as e:
                 print(f"Unexpected error when sending Slack notification: {e}")
-                
+
             return redirect(reverse("sample_database:sample-db"))
         elif response.status_code == 400:
             errors = response.data["errors"]

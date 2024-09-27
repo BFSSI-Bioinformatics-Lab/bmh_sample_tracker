@@ -18,7 +18,7 @@
     <tbody>
       {% for sample in samples %}
       <tr>
-        <td>{{ sample.sample_id }}</td>
+        <td><a href="{% url 'sample_database:detail' sample_id=sample.sample_id %}">{{ sample.sample_id }}</a></td>
         <td>{{ sample.sample_name }}</td>
         <td>{{ sample.tube_plate_label }}</td>
         <td>{{ sample.well|default_if_none:"" }}</td>
